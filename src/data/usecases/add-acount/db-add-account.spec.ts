@@ -5,15 +5,17 @@ interface DbAddAcountTypes{
   dbAddAcount: DbAddAcount
   encrypterStub: Encrypter
 }
-
-const makeDbAddAcount = (): DbAddAcountTypes => {
-  class EncrypterStub {
+const makeEncrypter = (): Encrypter => {
+  class EncrypterStub implements Encrypter {
     async encrypt (value: string): Promise<string> {
       return await new Promise(resolve => resolve('hashed_password'))
     }
   }
-  const encrypterStub = new EncrypterStub()
 
+  return new EncrypterStub()
+}
+const makeDbAddAcount = (): DbAddAcountTypes => {
+  const encrypterStub = makeEncrypter()
   const dbAddAcount = new DbAddAcount(encrypterStub)
 
   return {
