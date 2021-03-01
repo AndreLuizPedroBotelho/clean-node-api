@@ -8,8 +8,12 @@ describe('Account Mongo Repository', () => {
   afterAll(async () => {
     await MongoHelper.disconnect()
   })
+
+  const makeAccountMongoRepository = (): AccountMongoRepository => {
+    return new AccountMongoRepository()
+  }
   test('Should return an account on success', async () => {
-    const accountMongoRepository = new AccountMongoRepository()
+    const accountMongoRepository = makeAccountMongoRepository()
     const account = await accountMongoRepository.add({
       name: 'any_name',
       email: 'any_email@mail.com',
