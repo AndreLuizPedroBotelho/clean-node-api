@@ -1,4 +1,4 @@
-import app from './confir/app'
+import app from './config/app'
 
 const PORT = 8000
 
