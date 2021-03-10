@@ -1,8 +1,8 @@
 import request from 'supertest'
 import app from '../config/app'
 
-describe('Content Type Middleware', () => {
-  test('Should return default content type as json', async () => {
+describe('Cors Middleware', () => {
+  test('Should enable cors', async () => {
     app.get('/test_cors', (req, res) => {
       res.send(req.body)
     })
