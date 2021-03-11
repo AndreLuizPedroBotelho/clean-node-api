@@ -3,7 +3,7 @@ import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
 import { EmailValidator, AddAccount, AddAccountModel, AccountModel } from './signup-protocols'
 import { SignUpController } from './signup'
 
-interface signUpControllerTypes{
+interface SignUpControllerTypes{
   signUpController: SignUpController
   emailValidatorStub: EmailValidator
   addAccountStub: AddAccount
@@ -36,7 +36,7 @@ const makeAddAccount = (): AddAccount => {
   return new AddAccountStub()
 }
 
-const makeSignUpController = (): signUpControllerTypes => {
+const makeSignUpController = (): SignUpControllerTypes => {
   const emailValidatorStub = makeEmailValidator()
   const addAccountStub = makeAddAccount()
 
