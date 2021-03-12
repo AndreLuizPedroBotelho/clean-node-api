@@ -7,6 +7,19 @@ interface DbAddAcountTypes{
   addAccountRepositoryStub: AddAccountRepository
 }
 
+const makeFakeAccount = (): AccountModel => ({
+  id: 'valid_id',
+  name: 'valid_name',
+  email: 'valid_email@mail.com',
+  password: 'valid_password'
+})
+
+const makeFakeAccountData = (): AddAccountModel => ({
+  name: 'valid_name',
+  email: 'valid_email@mail.com',
+  password: 'valid_password'
+})
+
 const makeEncrypter = (): Encrypter => {
   class EncrypterStub implements Encrypter {
     async encrypt (value: string): Promise<string> {
@@ -20,14 +33,7 @@ const makeEncrypter = (): Encrypter => {
 const makeAddAccountRepository = (): AddAccountRepository => {
   class AddAccountRepositoryStub implements AddAccountRepository {
     async add (account: AddAccountModel): Promise<AccountModel> {
-      const fakeAccount = {
-        id: 'valid_id',
-        name: 'valid_name',
-        email: 'valid_email@mail.com',
-        password: 'hashed_password'
-      }
-
-      return await new Promise(resolve => resolve(fakeAccount))
+      return await new Promise(resolve => resolve(makeFakeAccount()))
     }
   }
 
@@ -51,13 +57,7 @@ describe('DbAddAcount UseCase', () => {
     const { encrypterStub, dbAddAcount } = makeDbAddAcount()
     const encryptSpy = jest.spyOn(encrypterStub, 'encrypt')
 
-    const accountData = {
-      name: 'valid_name',
-      email: 'valid_email@mail.com',
-      password: 'valid_password'
-    }
-
-    await dbAddAcount.add(accountData)
+    await dbAddAcount.add(makeFakeAccountData())
     expect(encryptSpy).toHaveBeenCalledWith('valid_password')
   })
 
@@ -67,13 +67,7 @@ describe('DbAddAcount UseCase', () => {
       new Promise((resolve, reject) => reject(new Error()))
     )
 
-    const accountData = {
-      name: 'valid_name',
-      email: 'valid_email@mail.com',
-      password: 'valid_password'
-    }
-
-    const promise = dbAddAcount.add(accountData)
+    const promise = dbAddAcount.add(makeFakeAccountData())
 
     await expect(promise).rejects.toThrow()
   })
@@ -82,13 +76,7 @@ describe('DbAddAcount UseCase', () => {
     const { addAccountRepositoryStub, dbAddAcount } = makeDbAddAcount()
     const addSpy = jest.spyOn(addAccountRepositoryStub, 'add')
 
-    const accountData = {
-      name: 'valid_name',
-      email: 'valid_email@mail.com',
-      password: 'valid_password'
-    }
-
-    await dbAddAcount.add(accountData)
+    await dbAddAcount.add(makeFakeAccountData())
     expect(addSpy).toHaveBeenCalledWith({
       name: 'valid_name',
       email: 'valid_email@mail.com',
@@ -102,13 +90,7 @@ describe('DbAddAcount UseCase', () => {
       new Promise((resolve, reject) => reject(new Error()))
     )
 
-    const accountData = {
-      name: 'valid_name',
-      email: 'valid_email@mail.com',
-      password: 'valid_password'
-    }
-
-    const promise = dbAddAcount.add(accountData)
+    const promise = dbAddAcount.add(makeFakeAccountData())
 
     await expect(promise).rejects.toThrow()
   })
@@ -116,18 +98,7 @@ describe('DbAddAcount UseCase', () => {
   test('Should return an account on success', async () => {
     const { dbAddAcount } = makeDbAddAcount()
 
-    const accountData = {
-      name: 'valid_name',
-      email: 'valid_email@mail.com',
-      password: 'valid_password'
-    }
-
-    const account = await dbAddAcount.add(accountData)
-    expect(account).toEqual({
-      id: 'valid_id',
-      name: 'valid_name',
-      email: 'valid_email@mail.com',
-      password: 'hashed_password'
-    })
+    const account = await dbAddAcount.add(makeFakeAccountData())
+    expect(account).toEqual(makeFakeAccount())
   })
 })
