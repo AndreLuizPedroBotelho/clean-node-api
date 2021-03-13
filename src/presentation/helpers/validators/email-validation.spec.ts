@@ -3,7 +3,7 @@ import { InvalidParamError } from '../../errors'
 import { EmailValidator } from '../../protocols/email-validator'
 import { EmailValidation } from './email-validaton'
 
-interface SignUpControllerTypes{
+interface EmailValidationTypes{
   emailValidation: EmailValidation
   emailValidatorStub: EmailValidator
 }
@@ -18,7 +18,7 @@ const makeEmailValidator = (): EmailValidator => {
   return new EmailValidatorStub()
 }
 
-const makeEmailValidation = (): SignUpControllerTypes => {
+const makeEmailValidation = (): EmailValidationTypes => {
   const emailValidatorStub = makeEmailValidator()
 
   const emailValidation = new EmailValidation('email', emailValidatorStub)
