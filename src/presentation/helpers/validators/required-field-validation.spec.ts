@@ -17,7 +17,7 @@ describe('RequiredField Validation', () => {
   test('Should not return  if validation succeeds', () => {
     const requiredFieldValidation = makeRequiredFieldValidation()
 
-    const error = requiredFieldValidation.validate({ field: 'any_name' })
+    const error = requiredFieldValidation.validate({ field: 'any_field' })
 
     expect(error).toBeFalsy()
   })
