@@ -1,7 +1,7 @@
 import { HttpRequest } from './../../protocols'
 import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
 
-import { EmailValidator, AddAccount, AddAccountModel, AccountModel } from './signup-protocols'
+import { EmailValidator, AddAccount, Validation, AddAccountModel, AccountModel } from './signup-protocols'
 import { SignUpController } from './signup'
 import { badRequest, ok, serverError } from '../../helpers/http-helper'
 
@@ -9,6 +9,7 @@ interface SignUpControllerTypes{
   signUpController: SignUpController
   emailValidatorStub: EmailValidator
   addAccountStub: AddAccount
+  validationStub: Validation
 }
 
 const makeFakeAccount = (): AccountModel => ({
@@ -47,16 +48,28 @@ const makeAddAccount = (): AddAccount => {
   return new AddAccountStub()
 }
 
+const makeValidation = (): Validation => {
+  class ValidationStub implements Validation {
+    validate (input: any): Error {
+      return null as unknown as Error
+    }
+  }
+
+  return new ValidationStub()
+}
+
 const makeSignUpController = (): SignUpControllerTypes => {
   const emailValidatorStub = makeEmailValidator()
   const addAccountStub = makeAddAccount()
+  const validationStub = makeValidation()
 
-  const signUpController = new SignUpController(emailValidatorStub, addAccountStub)
+  const signUpController = new SignUpController(emailValidatorStub, addAccountStub, validationStub)
 
   return {
     signUpController,
     emailValidatorStub,
-    addAccountStub
+    addAccountStub,
+    validationStub
   }
 }
 describe('SignUp Controller', () => {
@@ -201,5 +214,16 @@ describe('SignUp Controller', () => {
     const httpResponse = await signUpController.handle(makeFakeRequest())
 
     expect(httpResponse).toEqual(ok(makeFakeAccount()))
+  })
+
+  test('Should call Validation with correct values', async () => {
+    const { signUpController, validationStub } = makeSignUpController()
+
+    const validateSpy = jest.spyOn(validationStub, 'validate')
+
+    const httpRequest = makeFakeRequest()
+    await signUpController.handle(httpRequest)
+
+    expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
   })
 })
