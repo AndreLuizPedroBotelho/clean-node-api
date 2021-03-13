@@ -1,21 +1,13 @@
 import { MissingParamError } from '../../errors'
 import { RequiredFieldValidation } from './required-field-validation'
 
-interface RequiredFieldValidationypes{
-  requiredFieldValidation: RequiredFieldValidation
-}
-
-const makeRequiredFieldValidation = (): RequiredFieldValidationypes => {
-  const requiredFieldValidation = new RequiredFieldValidation('field')
-
-  return {
-    requiredFieldValidation
-  }
+const makeRequiredFieldValidation = (): RequiredFieldValidation => {
+  return new RequiredFieldValidation('field')
 }
 
 describe('RequiredField Validation', () => {
   test('Should return a MissingParamError if validation fails', () => {
-    const { requiredFieldValidation } = makeRequiredFieldValidation()
+    const requiredFieldValidation = makeRequiredFieldValidation()
 
     const error = requiredFieldValidation.validate({ name: 'any_name' })
 
@@ -23,7 +15,7 @@ describe('RequiredField Validation', () => {
   })
 
   test('Should not return  if validation succeeds', () => {
-    const { requiredFieldValidation } = makeRequiredFieldValidation()
+    const requiredFieldValidation = makeRequiredFieldValidation()
 
     const error = requiredFieldValidation.validate({ field: 'any_name' })
 
