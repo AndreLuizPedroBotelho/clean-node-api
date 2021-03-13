@@ -73,21 +73,6 @@ const makeSignUpController = (): SignUpControllerTypes => {
   }
 }
 describe('SignUp Controller', () => {
-  test('Should return 400 if  password confirmation fails', async () => {
-    const { signUpController } = makeSignUpController()
-
-    const httpRequest = {
-      body: {
-        name: 'any_name',
-        email: 'any_email@mail.com',
-        password: 'any_password',
-        passwordConfirmation: 'invalid_password'
-      }
-    }
-
-    const httpResponse = await signUpController.handle(httpRequest)
-    expect(httpResponse).toEqual(badRequest(new InvalidParamError('passwordConfirmation')))
-  })
   test('Should return 400 if an invalid email is provided', async () => {
     const { signUpController, emailValidatorStub } = makeSignUpController()
 
