@@ -47,4 +47,12 @@ describe('Validation Composite', () => {
 
     expect(error).toEqual(new InvalidParamError('field'))
   })
+
+  test('Should not return if validation succeeds', () => {
+    const { validationComposite } = makeValidationComposite()
+
+    const error = validationComposite.validate({ field: 'any_value' })
+
+    expect(error).toBeFalsy()
+  })
 })
