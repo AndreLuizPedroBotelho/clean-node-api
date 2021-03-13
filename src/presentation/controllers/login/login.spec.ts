@@ -1,9 +1,10 @@
+import { Authentication } from '../../../domain/usecases/authentication'
 import { InvalidParamError, MissingParamError } from '../../errors'
 import { badRequest, serverError } from '../../helpers/http-helper'
 import { EmailValidator, HttpRequest } from '../signup/signup-protocols'
 import { LoginController } from './login'
 
-const makeEMailValidator = (): EmailValidator => {
+const makeEmailValidator = (): EmailValidator => {
   class EmailValidatorStub implements EmailValidator {
     isValid (email: string): boolean {
       return true
@@ -11,6 +12,16 @@ const makeEMailValidator = (): EmailValidator => {
   }
 
   return new EmailValidatorStub()
+}
+
+const makeAuthentication = (): Authentication => {
+  class AuthenticationStub implements Authentication {
+    async auth (email: string, password: string): Promise<string> {
+      return await new Promise(resolve => resolve('any_token'))
+    }
+  }
+
+  return new AuthenticationStub()
 }
 
 const makeFakeRequest = (): HttpRequest => ({
@@ -22,16 +33,20 @@ const makeFakeRequest = (): HttpRequest => ({
 interface LoginControllerTypes{
   loginController: LoginController
   emailValidatorStub: EmailValidator
+  authenticationStub: Authentication
 }
 
 const makeLoginController = (): LoginControllerTypes => {
-  const emailValidatorStub = makeEMailValidator()
+  const emailValidatorStub = makeEmailValidator()
+  const authenticationStub = makeAuthentication()
 
-  const loginController = new LoginController(emailValidatorStub)
+  const loginController = new LoginController(emailValidatorStub, authenticationStub)
 
   return {
     loginController,
-    emailValidatorStub
+    emailValidatorStub,
+    authenticationStub
+
   }
 }
 describe('Login Controller', () => {
@@ -87,5 +102,14 @@ describe('Login Controller', () => {
 
     const httpResponse = await loginController.handle(makeFakeRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  test('Should call Authentication with correct values', async () => {
+    const { loginController, authenticationStub } = makeLoginController()
+
+    const authSpy = jest.spyOn(authenticationStub, 'auth')
+
+    await loginController.handle(makeFakeRequest())
+    expect(authSpy).toHaveBeenCalledWith('any_email@mail.com', 'any_password')
   })
 })
