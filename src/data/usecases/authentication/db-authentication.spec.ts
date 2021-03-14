@@ -31,7 +31,7 @@ const makeFakeAuthentication = (): AuthenticationModel => ({
 
 const makeLoadAccountByEmailRepository = (): LoadAccountByEmailRepository => {
   class LoadAccountByEmailRepositoryStub implements LoadAccountByEmailRepository {
-    async load (email: string): Promise<AccountModel> {
+    async loadByEmail (email: string): Promise<AccountModel> {
       return await new Promise(resolve => resolve(makeFakeAccount()))
     }
   }
@@ -95,17 +95,17 @@ describe('DbAuthentication UseCase', () => {
   test('Should call LoadAccountByEmailRepository with correct email', async () => {
     const { dbAuthentication, loadAccountByEmailRepositoryStub } = makeDbAuthentication()
 
-    const loadSpy = jest.spyOn(loadAccountByEmailRepositoryStub, 'load')
+    const loadByEmailSpy = jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail')
 
     await dbAuthentication.auth(makeFakeAuthentication())
 
-    expect(loadSpy).toHaveBeenCalledWith('any_email@mail.com')
+    expect(loadByEmailSpy).toHaveBeenCalledWith('any_email@mail.com')
   })
 
   test('Should throw if LoadAccountByEmailRepository throws', async () => {
     const { dbAuthentication, loadAccountByEmailRepositoryStub } = makeDbAuthentication()
 
-    jest.spyOn(loadAccountByEmailRepositoryStub, 'load').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+    jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
 
     const promise = dbAuthentication.auth(makeFakeAuthentication())
 
@@ -115,7 +115,7 @@ describe('DbAuthentication UseCase', () => {
   test('Should return null if LoadAccountByEmailRepository returns null', async () => {
     const { dbAuthentication, loadAccountByEmailRepositoryStub } = makeDbAuthentication()
 
-    jest.spyOn(loadAccountByEmailRepositoryStub, 'load').mockReturnValueOnce(null as unknown as Promise<AccountModel>)
+    jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail').mockReturnValueOnce(null as unknown as Promise<AccountModel>)
 
     const accessToken = await dbAuthentication.auth(makeFakeAuthentication())
 
