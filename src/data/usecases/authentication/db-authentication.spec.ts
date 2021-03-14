@@ -41,7 +41,7 @@ const makeLoadAccountByEmailRepository = (): LoadAccountByEmailRepository => {
 
 const makeUpdateAccessTokenRepository = (): UpdateAccessTokenRepository => {
   class UpdateAccessTokenRepositoryStub implements UpdateAccessTokenRepository {
-    async update (id: string, token: string): Promise<void> {
+    async updateAccessToken (id: string, token: string): Promise<void> {
       return await new Promise(resolve => resolve())
     }
   }
@@ -183,17 +183,17 @@ describe('DbAuthentication UseCase', () => {
   test('Should call UpdateAccessTokenRepository with correct values', async () => {
     const { dbAuthentication, updateAccessTokenRepositoryStub } = makeDbAuthentication()
 
-    const updateSpy = jest.spyOn(updateAccessTokenRepositoryStub, 'update')
+    const updateAccessTokenSpy = jest.spyOn(updateAccessTokenRepositoryStub, 'updateAccessToken')
 
     await dbAuthentication.auth(makeFakeAuthentication())
 
-    expect(updateSpy).toHaveBeenCalledWith('any_id', 'any_token')
+    expect(updateAccessTokenSpy).toHaveBeenCalledWith('any_id', 'any_token')
   })
 
   test('Should throw if UpdateAccessTokenRepository throws', async () => {
     const { dbAuthentication, updateAccessTokenRepositoryStub } = makeDbAuthentication()
 
-    jest.spyOn(updateAccessTokenRepositoryStub, 'update').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+    jest.spyOn(updateAccessTokenRepositoryStub, 'updateAccessToken').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
 
     const promise = dbAuthentication.auth(makeFakeAuthentication())
 
