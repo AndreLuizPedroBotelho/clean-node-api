@@ -1,6 +1,7 @@
 import { AccountModel } from '../../../domain/models/account'
 import { AuthenticationModel } from '../../../domain/usecases/authentication'
 import { HashComparer } from '../../protocols/cryptography/hash-comparer'
+import { TokenGenerator } from '../../protocols/cryptography/token-generator'
 import { LoadAccountByEmailRepository } from '../../protocols/db/load-account-by-email=repository'
 import { DbAuthentication } from './db-authentication'
 
@@ -8,12 +9,13 @@ interface DbAddAccountTypes{
   dbAuthentication: DbAuthentication
   loadAccountByEmailRepositoryStub: LoadAccountByEmailRepository
   hashComparerStub: HashComparer
+  tokenGeneratorStub: TokenGenerator
 }
 
 const makeFakeAccount = (): AccountModel => ({
-  id: 'valid_id',
-  name: 'valid_name',
-  email: 'valid_email@mail.com',
+  id: 'any_id',
+  name: 'any_name',
+  email: 'any_email@mail.com',
   password: 'hashed_password'
 })
 
@@ -42,16 +44,32 @@ const makeHashComparer = (): HashComparer => {
   return new HashComparerStub()
 }
 
+const makeTokenGenerator = (): TokenGenerator => {
+  class TokenGeneratorStub implements TokenGenerator {
+    async generate (id: string): Promise<string> {
+      return await new Promise(resolve => resolve('hashed_token'))
+    }
+  }
+
+  return new TokenGeneratorStub()
+}
+
 const makeDbAuthentication = (): DbAddAccountTypes => {
   const loadAccountByEmailRepositoryStub = makeLoadAccountByEmailRepository()
   const hashComparerStub = makeHashComparer()
+  const tokenGeneratorStub = makeTokenGenerator()
 
-  const dbAuthentication = new DbAuthentication(loadAccountByEmailRepositoryStub, hashComparerStub)
+  const dbAuthentication = new DbAuthentication(
+    loadAccountByEmailRepositoryStub,
+    hashComparerStub,
+    tokenGeneratorStub
+  )
 
   return {
     dbAuthentication,
     loadAccountByEmailRepositoryStub,
-    hashComparerStub
+    hashComparerStub,
+    tokenGeneratorStub
   }
 }
 describe('DbAuthentication UseCase', () => {
@@ -113,5 +131,15 @@ describe('DbAuthentication UseCase', () => {
     const accessToken = await dbAuthentication.auth(makeFakeAuthentication())
 
     expect(accessToken).toBeNull()
+  })
+
+  test('Should call TokenGenerator with correct id', async () => {
+    const { dbAuthentication, tokenGeneratorStub } = makeDbAuthentication()
+
+    const generateSpy = jest.spyOn(tokenGeneratorStub, 'generate')
+
+    await dbAuthentication.auth(makeFakeAuthentication())
+
+    expect(generateSpy).toHaveBeenCalledWith('any_id')
   })
 })
