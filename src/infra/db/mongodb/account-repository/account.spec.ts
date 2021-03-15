@@ -1,4 +1,5 @@
 import { Collection } from 'mongodb'
+import { AccountModel } from '../../../../domain/models/account'
 import { MongoHelper } from './../../mongodb/helpers/mongo-helper'
 import { AccountMongoRepository } from './account'
 
@@ -22,12 +23,19 @@ describe('Account Mongo Repository', () => {
     return new AccountMongoRepository()
   }
 
-  const makeFakeAccount = async (): Promise<void> => {
-    await accountCollection.insertOne({
+  const makeFakeAccount = async (): Promise<AccountModel> => {
+    const res = await accountCollection.insertOne({
       name: 'any_name',
       email: 'any_email@mail.com',
       password: 'any_password'
     })
+
+    return MongoHelper.map(res.ops[0])
+  }
+
+  const loadFakeAccountById = async (id: string): Promise<AccountModel> => {
+    const account = await accountCollection.findOne({ _id: id })
+    return MongoHelper.map(account)
   }
   test('Should return an account on add success', async () => {
     const accountMongoRepository = makeAccountMongoRepository()
@@ -64,5 +72,20 @@ describe('Account Mongo Repository', () => {
     const account = await accountMongoRepository.loadByEmail('any_email@mail.com')
 
     expect(account).toBeFalsy()
+  })
+
+  test.only('Should update the account accessToken on updateAccessToken success ', async () => {
+    const accountMongoRepository = makeAccountMongoRepository()
+
+    const { id, accessToken } = await makeFakeAccount()
+
+    expect(accessToken).toBeFalsy()
+
+    await accountMongoRepository.updateAccessToken(id, 'any_token')
+
+    const account = await loadFakeAccountById(id)
+
+    expect(account).toBeTruthy()
+    expect(account.accessToken).toBe('any_token')
   })
 })
