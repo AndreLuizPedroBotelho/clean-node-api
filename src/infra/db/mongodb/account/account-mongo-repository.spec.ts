@@ -1,7 +1,7 @@
 import { Collection } from 'mongodb'
 import { AccountModel } from '../../../../domain/models/account'
-import { MongoHelper } from './../../mongodb/helpers/mongo-helper'
-import { AccountMongoRepository } from './account'
+import { MongoHelper } from '../helpers/mongo-helper'
+import { AccountMongoRepository } from './account-mongo-repository'
 
 let accountCollection: Collection
 describe('Account Mongo Repository', () => {
@@ -74,7 +74,7 @@ describe('Account Mongo Repository', () => {
     expect(account).toBeFalsy()
   })
 
-  test.only('Should update the account accessToken on updateAccessToken success ', async () => {
+  test('Should update the account accessToken on updateAccessToken success ', async () => {
     const accountMongoRepository = makeAccountMongoRepository()
 
     const { id, accessToken } = await makeFakeAccount()

@@ -1,9 +1,9 @@
-import { LoginController } from '../../../presentation/controllers/login/login'
+import { LoginController } from '../../../presentation/controllers/login/login-controller'
 import { Controller } from '../../../presentation/protocols'
-import { LogControllerDecorator } from '../../decorators/log'
-import { LogMongoRepository } from '../../../infra/db/mongodb/log-repository/log'
+import { LogControllerDecorator } from '../../decorators/log-controller-decorator'
+import { LogMongoRepository } from '../../../infra/db/mongodb/log/log-mongo-repository'
 
-import { makeLoginValidation } from './login-validation'
+import { makeLoginValidation } from './login-validation-factory'
 import { Authentication } from '../../../domain/usecases/authentication'
 
 export const makeLoginController = (): Controller => {
