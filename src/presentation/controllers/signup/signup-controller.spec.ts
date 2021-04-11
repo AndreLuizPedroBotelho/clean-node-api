@@ -1,6 +1,14 @@
 import { MissingParamError, ServerError } from '../../errors'
 
-import { AddAccount, Validation, AddAccountModel, AccountModel, HttpRequest } from './signup-controller-protocols'
+import {
+  AddAccount,
+  Validation,
+  AddAccountModel,
+  AccountModel,
+  Authentication,
+  AuthenticationModel,
+  HttpRequest
+} from './signup-controller-protocols'
 
 import { SignUpController } from './signup-controller'
 import { badRequest, ok, serverError } from '../../helpers/http/http-helper'
@@ -9,6 +17,7 @@ interface SignUpControllerTypes{
   signUpController: SignUpController
   addAccountStub: AddAccount
   validationStub: Validation
+  authenticationStub: Authentication
 }
 
 const makeFakeAccount = (): AccountModel => ({
@@ -26,6 +35,15 @@ const makeFakeRequest = (): HttpRequest => ({
     passwordConfirmation: 'any_password'
   }
 })
+const makeAuthentication = (): Authentication => {
+  class AuthenticationStub implements Authentication {
+    async auth (authentication: AuthenticationModel): Promise<string> {
+      return await new Promise(resolve => resolve('any_token'))
+    }
+  }
+
+  return new AuthenticationStub()
+}
 
 const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
@@ -48,15 +66,21 @@ const makeValidation = (): Validation => {
 }
 
 const makeSignUpController = (): SignUpControllerTypes => {
+  const authenticationStub = makeAuthentication()
   const addAccountStub = makeAddAccount()
   const validationStub = makeValidation()
 
-  const signUpController = new SignUpController(addAccountStub, validationStub)
+  const signUpController = new SignUpController(
+    addAccountStub,
+    validationStub,
+    authenticationStub
+  )
 
   return {
     signUpController,
     addAccountStub,
-    validationStub
+    validationStub,
+    authenticationStub
   }
 }
 describe('SignUp Controller', () => {
@@ -111,5 +135,17 @@ describe('SignUp Controller', () => {
     const httpResponse = await signUpController.handle(makeFakeRequest())
 
     expect(httpResponse).toEqual(badRequest(new MissingParamError('any_field')))
+  })
+
+  test('Should call Authentication with correct values', async () => {
+    const { signUpController, authenticationStub } = makeSignUpController()
+
+    const authSpy = jest.spyOn(authenticationStub, 'auth')
+
+    await signUpController.handle(makeFakeRequest())
+    expect(authSpy).toHaveBeenCalledWith({
+      email: 'any_email@mail.com',
+      password: 'any_password'
+    })
   })
 })
