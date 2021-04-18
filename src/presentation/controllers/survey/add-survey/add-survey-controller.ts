@@ -1,4 +1,4 @@
-import { badRequest, serverError } from '../../../helpers/http/http-helper'
+import { badRequest, noContent, serverError } from '../../../helpers/http/http-helper'
 import { Controller, HttpResponse, HttpRequest, Validation, AddSurvey } from './add-survey-controller-protocols'
 
 export class AddSurveyController implements Controller {
@@ -22,7 +22,7 @@ export class AddSurveyController implements Controller {
         answers
       })
 
-      return await new Promise(resolve => resolve(null as unknown as HttpResponse))
+      return noContent()
     } catch (error) {
       return serverError(error)
     }
