@@ -6,7 +6,7 @@ interface DbAddSurveyTypes{
   addSurveyRepositoryStub: AddSurveyRepository
 }
 
-const makeFakeSurvey = (): AddSurveyModel => ({
+const makeFakeSurveyData = (): AddSurveyModel => ({
   question: 'any_question',
   answers: [{
     image: 'any_image',
@@ -36,11 +36,22 @@ const makeDbAddSurvey = (): DbAddSurveyTypes => {
 describe('DbAddSurvey UseCase', () => {
   test('Should call AddSurveyRepository with correct values', async () => {
     const { dbAddSurvey, addSurveyRepositoryStub } = makeDbAddSurvey()
-    const survey = makeFakeSurvey()
+    const survey = makeFakeSurveyData()
     const addSurveyRepositorySpy = jest.spyOn(addSurveyRepositoryStub, 'add')
 
     await dbAddSurvey.add(survey)
 
     expect(addSurveyRepositorySpy).toHaveBeenCalledWith(survey)
+  })
+
+  test('Should throw if AddSurveyRepository throw', async () => {
+    const { dbAddSurvey, addSurveyRepositoryStub } = makeDbAddSurvey()
+    jest.spyOn(addSurveyRepositoryStub, 'add').mockReturnValue(
+      new Promise((resolve, reject) => reject(new Error()))
+    )
+
+    const promise = dbAddSurvey.add(makeFakeSurveyData())
+
+    await expect(promise).rejects.toThrow()
   })
 })
