@@ -63,7 +63,7 @@ describe('DbLoadAccountByToken UseCase', () => {
 
     jest.spyOn(decrypterStub, 'decrypt').mockReturnValueOnce(new Promise(resolve => resolve(null as any)))
 
-    const account = await dbLoadAccountByToken.load('any_token')
+    const account = await dbLoadAccountByToken.load('any_token', 'any_role')
 
     expect(account).toBeNull()
   })
@@ -83,8 +83,16 @@ describe('DbLoadAccountByToken UseCase', () => {
 
     jest.spyOn(loadAccountByTokenRepository, 'loadByToken').mockReturnValueOnce(new Promise(resolve => resolve(null as any)))
 
-    const account = await dbLoadAccountByToken.load('any_token')
+    const account = await dbLoadAccountByToken.load('any_token', 'any_role')
 
     expect(account).toBeNull()
+  })
+
+  test('Should return an account on success', async () => {
+    const { dbLoadAccountByToken } = makeDbLoadAccountByToken()
+
+    const account = await dbLoadAccountByToken.load('any_token', 'any_role')
+
+    expect(account).toEqual(makeFakeAccount())
   })
 })
