@@ -58,5 +58,13 @@ describe('Jwt Adapter', () => {
 
       expect(verifySpy).toHaveBeenCalledWith('any_token', 'secret')
     })
+
+    test('Should return a token on verify success', async () => {
+      const jwtAdapter = makeJwtAdapter()
+
+      const accessToken = await jwtAdapter.decrypt('any_token')
+
+      expect(accessToken).toBe('any_value')
+    })
   })
 })
