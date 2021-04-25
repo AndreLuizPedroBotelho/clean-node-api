@@ -1,9 +1,13 @@
-import { HttpRequest } from './../protocols/http'
-import { LoadAccountByToken } from './../../domain/usecases/load-account-by-token'
+import {
+  LoadAccountByToken,
+  HttpRequest,
+  AccountModel,
+  forbidden,
+  ok,
+  serverError
+} from './auth-middleware-protocols'
 import { AuthMiddleware } from './auth-middleware'
-import { AccessDeniedError } from './../errors'
-import { forbidden, ok, serverError } from './../helpers/http/http-helper'
-import { AccountModel } from '../../domain/models/account'
+import { AccessDeniedError } from '../errors'
 
 interface AuthMiddlewareTypes{
   authMiddleware: AuthMiddleware
@@ -33,10 +37,10 @@ const makeLoadAccountByToken = (): LoadAccountByToken => {
   return new LoadAccountByTokenStub()
 }
 
-const makeAuthMiddleware = (): AuthMiddlewareTypes => {
+const makeAuthMiddleware = (role?: string): AuthMiddlewareTypes => {
   const loadAccountByTokenStub = makeLoadAccountByToken()
 
-  const authMiddleware = new AuthMiddleware(loadAccountByTokenStub)
+  const authMiddleware = new AuthMiddleware(loadAccountByTokenStub, role)
 
   return {
     authMiddleware,
@@ -52,13 +56,14 @@ describe('Auth Middleware', () => {
     expect(httpResponse).toEqual(forbidden(new AccessDeniedError()))
   })
 
-  test('Should call LoadAccountByToken with correct Accessstoken', async () => {
-    const { authMiddleware, loadAccountByTokenStub } = makeAuthMiddleware()
+  test('Should call LoadAccountByToken with correct accessToken', async () => {
+    const role = 'any_role'
+    const { authMiddleware, loadAccountByTokenStub } = makeAuthMiddleware(role)
     const loadSpy = jest.spyOn(loadAccountByTokenStub, 'load')
 
     await authMiddleware.handle(makeFakeRequest())
 
-    expect(loadSpy).toHaveBeenCalledWith('any_token')
+    expect(loadSpy).toHaveBeenCalledWith('any_token', role)
   })
 
   test('Should return 403 if LoadAccountByToken returns null', async () => {
