@@ -9,12 +9,11 @@ const makeAccountMongoRepository = (): AccountMongoRepository => {
   return new AccountMongoRepository()
 }
 
-const makeFakeAccount = async (accessToken?: string): Promise<AccountModel> => {
+const makeFakeAccount = async (): Promise<AccountModel> => {
   const res = await accountCollection.insertOne({
     name: 'any_name',
     email: 'any_email@mail.com',
-    password: 'any_password',
-    accessToken
+    password: 'any_password'
   })
 
   return MongoHelper.map(res.ops[0])
@@ -101,8 +100,35 @@ describe('Account Mongo Repository', () => {
     test('Should return an account on loadByToken success without role', async () => {
       const accountMongoRepository = makeAccountMongoRepository()
 
-      await makeFakeAccount('any_token')
+      await accountCollection.insertOne({
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        accessToken: 'any_token'
+      })
+
       const account = await accountMongoRepository.loadByToken('any_token')
+
+      expect(account).toBeTruthy()
+      expect(account.id).toBeTruthy()
+
+      expect(account.name).toBe('any_name')
+      expect(account.email).toBe('any_email@mail.com')
+      expect(account.password).toBe('any_password')
+    })
+
+    test('Should return an account on loadByToken success with role', async () => {
+      const accountMongoRepository = makeAccountMongoRepository()
+
+      await accountCollection.insertOne({
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        accessToken: 'any_token',
+        role: 'any_role'
+      })
+
+      const account = await accountMongoRepository.loadByToken('any_token', 'any_role')
 
       expect(account).toBeTruthy()
       expect(account.id).toBeTruthy()
