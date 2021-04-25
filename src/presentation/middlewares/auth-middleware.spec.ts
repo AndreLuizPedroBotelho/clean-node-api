@@ -2,7 +2,7 @@ import { HttpRequest } from './../protocols/http'
 import { LoadAccountByToken } from './../../domain/usecases/load-account-by-token'
 import { AuthMiddleware } from './auth-middleware'
 import { AccessDeniedError } from './../errors'
-import { forbidden } from './../helpers/http/http-helper'
+import { forbidden, ok } from './../helpers/http/http-helper'
 import { AccountModel } from '../../domain/models/account'
 
 interface AuthMiddlewareTypes{
@@ -68,5 +68,13 @@ describe('Auth Middleware', () => {
     const httpResponse = await authMiddleware.handle(makeFakeRequest())
 
     expect(httpResponse).toEqual(forbidden(new AccessDeniedError()))
+  })
+
+  test('Should return 200 if LoadAccountByToken returns an account id', async () => {
+    const { authMiddleware } = makeAuthMiddleware()
+
+    const httpResponse = await authMiddleware.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(ok({ accountId: 'valid_id' }))
   })
 })
