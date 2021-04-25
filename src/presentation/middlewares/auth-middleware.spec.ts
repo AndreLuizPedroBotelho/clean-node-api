@@ -1,25 +1,60 @@
+import { LoadAccountByToken } from './../../domain/usecases/load-account-by-token'
 import { AuthMiddleware } from './auth-middleware'
 import { AccessDeniedError } from './../errors'
 import { forbidden } from './../helpers/http/http-helper'
+import { AccountModel } from '../../domain/models/account'
 
 interface AuthMiddlewareTypes{
   authMiddleware: AuthMiddleware
+  loadAccountByTokenStub: LoadAccountByToken
+}
+
+const makeFakeAccount = (): AccountModel => ({
+  id: 'valid_id',
+  name: 'valid_name',
+  email: 'valid_email@mail.com',
+  password: 'valid_password'
+})
+
+const makeLoadAccountByToken = (): LoadAccountByToken => {
+  class LoadAccountByTokenStub implements LoadAccountByToken {
+    async load (accessToken: string): Promise<AccountModel> {
+      return await new Promise(resolve => resolve(makeFakeAccount()))
+    }
+  }
+
+  return new LoadAccountByTokenStub()
 }
 
 const makeAuthMiddleware = (): AuthMiddlewareTypes => {
-  const authMiddleware = new AuthMiddleware()
+  const loadAccountByTokenStub = makeLoadAccountByToken()
+
+  const authMiddleware = new AuthMiddleware(loadAccountByTokenStub)
 
   return {
-    authMiddleware
-
+    authMiddleware,
+    loadAccountByTokenStub
   }
 }
 
-describe('AUth Middleware', () => {
+describe('Auth Middleware', () => {
   test('Should return 403 if no x-acces-token  exists in headers ', async () => {
     const { authMiddleware } = makeAuthMiddleware()
     const httpResponse = await authMiddleware.handle({})
 
     expect(httpResponse).toEqual(forbidden(new AccessDeniedError()))
+  })
+
+  test('Should call LoadAccountByToken with correct Accessstoken', async () => {
+    const { authMiddleware, loadAccountByTokenStub } = makeAuthMiddleware()
+    const loadSpy = jest.spyOn(loadAccountByTokenStub, 'load')
+
+    await authMiddleware.handle({
+      headers: {
+        'x-access-token': 'any_token'
+      }
+    })
+
+    expect(loadSpy).toHaveBeenCalledWith('any_token')
   })
 })
