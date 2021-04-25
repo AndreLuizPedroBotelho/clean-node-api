@@ -12,33 +12,35 @@ const makeJwtAdapter = (): JwtAdapter => {
 }
 
 describe('Jwt Adapter', () => {
-  test('Should call sign with correct values', async () => {
-    const jwtAdapter = makeJwtAdapter()
+  describe('sign()', () => {
+    test('Should call sign with correct values', async () => {
+      const jwtAdapter = makeJwtAdapter()
 
-    const signSpy = jest.spyOn(jwt, 'sign')
+      const signSpy = jest.spyOn(jwt, 'sign')
 
-    await jwtAdapter.encrypt('any_id')
+      await jwtAdapter.encrypt('any_id')
 
-    expect(signSpy).toHaveBeenCalledWith({ id: 'any_id' }, 'secret')
-  })
-
-  test('Should return a token on sign success', async () => {
-    const jwtAdapter = makeJwtAdapter()
-
-    const accessToken = await jwtAdapter.encrypt('any_id')
-
-    expect(accessToken).toBe('token')
-  })
-
-  test('Should throw if sign throws', async () => {
-    const jwtAdapter = makeJwtAdapter()
-
-    jest.spyOn(jwt, 'sign').mockImplementationOnce(() => {
-      throw new Error()
+      expect(signSpy).toHaveBeenCalledWith({ id: 'any_id' }, 'secret')
     })
 
-    const promise = jwtAdapter.encrypt('any_id')
+    test('Should return a token on sign success', async () => {
+      const jwtAdapter = makeJwtAdapter()
 
-    await expect(promise).rejects.toThrow()
+      const accessToken = await jwtAdapter.encrypt('any_id')
+
+      expect(accessToken).toBe('token')
+    })
+
+    test('Should throw if sign throws', async () => {
+      const jwtAdapter = makeJwtAdapter()
+
+      jest.spyOn(jwt, 'sign').mockImplementationOnce(() => {
+        throw new Error()
+      })
+
+      const promise = jwtAdapter.encrypt('any_id')
+
+      await expect(promise).rejects.toThrow()
+    })
   })
 })

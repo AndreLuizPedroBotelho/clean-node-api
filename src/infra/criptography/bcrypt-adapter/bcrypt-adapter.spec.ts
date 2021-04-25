@@ -17,73 +17,77 @@ const makeBcryptAdapter = (): BcryptAdapter => {
 }
 
 describe('Bcrypt Adapter', () => {
-  test('Should call hash with correct values', async () => {
-    const bcryptAdapter = makeBcryptAdapter()
+  describe('hash()', () => {
+    test('Should call hash with correct values', async () => {
+      const bcryptAdapter = makeBcryptAdapter()
 
-    const hashSpy = jest.spyOn(bcrypt, 'hash')
+      const hashSpy = jest.spyOn(bcrypt, 'hash')
 
-    await bcryptAdapter.hash('any_value')
+      await bcryptAdapter.hash('any_value')
 
-    expect(hashSpy).toHaveBeenCalledWith('any_value', salt)
+      expect(hashSpy).toHaveBeenCalledWith('any_value', salt)
+    })
+
+    test('Should return a valid  hash on hash success', async () => {
+      const bcryptAdapter = makeBcryptAdapter()
+
+      const hash = await bcryptAdapter.hash('any_value')
+
+      expect(hash).toBe('hash')
+    })
+
+    test('Should throw if hash throws', async () => {
+      const bcryptAdapter = makeBcryptAdapter()
+
+      jest.spyOn(bcrypt, 'hash').mockReturnValue(
+        new Promise((resolve, reject) => reject(new Error()))
+      )
+
+      const promise = bcryptAdapter.hash('any_value')
+
+      await expect(promise).rejects.toThrow()
+    })
   })
 
-  test('Should return a valid  hash on hash success', async () => {
-    const bcryptAdapter = makeBcryptAdapter()
+  describe('compare()', () => {
+    test('Should call compare with correct values', async () => {
+      const bcryptAdapter = makeBcryptAdapter()
 
-    const hash = await bcryptAdapter.hash('any_value')
+      const compareSpy = jest.spyOn(bcrypt, 'compare')
 
-    expect(hash).toBe('hash')
-  })
+      await bcryptAdapter.compare('any_value', 'any_hash')
 
-  test('Should throw if hash throws', async () => {
-    const bcryptAdapter = makeBcryptAdapter()
+      expect(compareSpy).toHaveBeenCalledWith('any_value', 'any_hash')
+    })
 
-    jest.spyOn(bcrypt, 'hash').mockReturnValue(
-      new Promise((resolve, reject) => reject(new Error()))
-    )
+    test('Should return true when compare success', async () => {
+      const bcryptAdapter = makeBcryptAdapter()
 
-    const promise = bcryptAdapter.hash('any_value')
+      const isValid = await bcryptAdapter.compare('any_value', 'any_hash')
 
-    await expect(promise).rejects.toThrow()
-  })
+      expect(isValid).toBe(true)
+    })
 
-  test('Should call compare with correct values', async () => {
-    const bcryptAdapter = makeBcryptAdapter()
+    test('Should return false when compare fails', async () => {
+      const bcryptAdapter = makeBcryptAdapter()
 
-    const compareSpy = jest.spyOn(bcrypt, 'compare')
+      jest.spyOn(bcrypt, 'compare').mockReturnValueOnce(new Promise(resolve => resolve(false)))
 
-    await bcryptAdapter.compare('any_value', 'any_hash')
+      const isValid = await bcryptAdapter.compare('any_value', 'any_hash')
 
-    expect(compareSpy).toHaveBeenCalledWith('any_value', 'any_hash')
-  })
+      expect(isValid).toBe(false)
+    })
 
-  test('Should return true when compare success', async () => {
-    const bcryptAdapter = makeBcryptAdapter()
+    test('Should throw if compare throws', async () => {
+      const bcryptAdapter = makeBcryptAdapter()
 
-    const isValid = await bcryptAdapter.compare('any_value', 'any_hash')
+      jest.spyOn(bcrypt, 'compare').mockReturnValue(
+        new Promise((resolve, reject) => reject(new Error()))
+      )
 
-    expect(isValid).toBe(true)
-  })
+      const promise = bcryptAdapter.compare('any_value', 'any_hash')
 
-  test('Should return false when compare fails', async () => {
-    const bcryptAdapter = makeBcryptAdapter()
-
-    jest.spyOn(bcrypt, 'compare').mockReturnValueOnce(new Promise(resolve => resolve(false)))
-
-    const isValid = await bcryptAdapter.compare('any_value', 'any_hash')
-
-    expect(isValid).toBe(false)
-  })
-
-  test('Should throw if compare throws', async () => {
-    const bcryptAdapter = makeBcryptAdapter()
-
-    jest.spyOn(bcrypt, 'compare').mockReturnValue(
-      new Promise((resolve, reject) => reject(new Error()))
-    )
-
-    const promise = bcryptAdapter.compare('any_value', 'any_hash')
-
-    await expect(promise).rejects.toThrow()
+      await expect(promise).rejects.toThrow()
+    })
   })
 })

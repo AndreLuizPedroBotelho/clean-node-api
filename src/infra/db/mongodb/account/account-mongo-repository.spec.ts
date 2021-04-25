@@ -4,6 +4,25 @@ import { MongoHelper } from '../helpers/mongo-helper'
 import { AccountMongoRepository } from './account-mongo-repository'
 
 let accountCollection: Collection
+
+const makeAccountMongoRepository = (): AccountMongoRepository => {
+  return new AccountMongoRepository()
+}
+
+const makeFakeAccount = async (): Promise<AccountModel> => {
+  const res = await accountCollection.insertOne({
+    name: 'any_name',
+    email: 'any_email@mail.com',
+    password: 'any_password'
+  })
+
+  return MongoHelper.map(res.ops[0])
+}
+
+const loadFakeAccountById = async (id: string): Promise<AccountModel> => {
+  const account = await accountCollection.findOne({ _id: id })
+  return MongoHelper.map(account)
+}
 describe('Account Mongo Repository', () => {
   beforeAll(async () => {
     await MongoHelper.connect(process.env.MONGO_URL as string)
@@ -19,73 +38,61 @@ describe('Account Mongo Repository', () => {
     await accountCollection.deleteMany({})
   })
 
-  const makeAccountMongoRepository = (): AccountMongoRepository => {
-    return new AccountMongoRepository()
-  }
+  describe('add()', () => {
+    test('Should return an account on add success', async () => {
+      const accountMongoRepository = makeAccountMongoRepository()
+      const account = await accountMongoRepository.add({
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password'
+      })
 
-  const makeFakeAccount = async (): Promise<AccountModel> => {
-    const res = await accountCollection.insertOne({
-      name: 'any_name',
-      email: 'any_email@mail.com',
-      password: 'any_password'
+      expect(account).toBeTruthy()
+      expect(account.id).toBeTruthy()
+
+      expect(account.name).toBe('any_name')
+      expect(account.email).toBe('any_email@mail.com')
+      expect(account.password).toBe('any_password')
     })
+  })
 
-    return MongoHelper.map(res.ops[0])
-  }
+  describe('loadByEmail()', () => {
+    test('Should return an account on loadByEmail success', async () => {
+      const accountMongoRepository = makeAccountMongoRepository()
 
-  const loadFakeAccountById = async (id: string): Promise<AccountModel> => {
-    const account = await accountCollection.findOne({ _id: id })
-    return MongoHelper.map(account)
-  }
-  test('Should return an account on add success', async () => {
-    const accountMongoRepository = makeAccountMongoRepository()
-    const account = await accountMongoRepository.add({
-      name: 'any_name',
-      email: 'any_email@mail.com',
-      password: 'any_password'
+      await makeFakeAccount()
+      const account = await accountMongoRepository.loadByEmail('any_email@mail.com')
+
+      expect(account).toBeTruthy()
+      expect(account.id).toBeTruthy()
+
+      expect(account.name).toBe('any_name')
+      expect(account.email).toBe('any_email@mail.com')
+      expect(account.password).toBe('any_password')
     })
+    test('Should return null if loadByEmail', async () => {
+      const accountMongoRepository = makeAccountMongoRepository()
 
-    expect(account).toBeTruthy()
-    expect(account.id).toBeTruthy()
+      const account = await accountMongoRepository.loadByEmail('any_email@mail.com')
 
-    expect(account.name).toBe('any_name')
-    expect(account.email).toBe('any_email@mail.com')
-    expect(account.password).toBe('any_password')
+      expect(account).toBeFalsy()
+    })
   })
 
-  test('Should return an account on loadByEmail success', async () => {
-    const accountMongoRepository = makeAccountMongoRepository()
+  describe('updateAccessToken', () => {
+    test('Should update the account accessToken on updateAccessToken success ', async () => {
+      const accountMongoRepository = makeAccountMongoRepository()
 
-    await makeFakeAccount()
-    const account = await accountMongoRepository.loadByEmail('any_email@mail.com')
+      const { id, accessToken } = await makeFakeAccount()
 
-    expect(account).toBeTruthy()
-    expect(account.id).toBeTruthy()
+      expect(accessToken).toBeFalsy()
 
-    expect(account.name).toBe('any_name')
-    expect(account.email).toBe('any_email@mail.com')
-    expect(account.password).toBe('any_password')
-  })
-  test('Should return null if loadByEmail', async () => {
-    const accountMongoRepository = makeAccountMongoRepository()
+      await accountMongoRepository.updateAccessToken(id, 'any_token')
 
-    const account = await accountMongoRepository.loadByEmail('any_email@mail.com')
+      const account = await loadFakeAccountById(id)
 
-    expect(account).toBeFalsy()
-  })
-
-  test('Should update the account accessToken on updateAccessToken success ', async () => {
-    const accountMongoRepository = makeAccountMongoRepository()
-
-    const { id, accessToken } = await makeFakeAccount()
-
-    expect(accessToken).toBeFalsy()
-
-    await accountMongoRepository.updateAccessToken(id, 'any_token')
-
-    const account = await loadFakeAccountById(id)
-
-    expect(account).toBeTruthy()
-    expect(account.accessToken).toBe('any_token')
+      expect(account).toBeTruthy()
+      expect(account.accessToken).toBe('any_token')
+    })
   })
 })
