@@ -1,3 +1,4 @@
+import { HttpRequest } from './../protocols/http'
 import { LoadAccountByToken } from './../../domain/usecases/load-account-by-token'
 import { AuthMiddleware } from './auth-middleware'
 import { AccessDeniedError } from './../errors'
@@ -8,6 +9,12 @@ interface AuthMiddlewareTypes{
   authMiddleware: AuthMiddleware
   loadAccountByTokenStub: LoadAccountByToken
 }
+
+const makeFakeRequest = (): HttpRequest => ({
+  headers: {
+    'x-access-token': 'any_token'
+  }
+})
 
 const makeFakeAccount = (): AccountModel => ({
   id: 'valid_id',
@@ -49,11 +56,7 @@ describe('Auth Middleware', () => {
     const { authMiddleware, loadAccountByTokenStub } = makeAuthMiddleware()
     const loadSpy = jest.spyOn(loadAccountByTokenStub, 'load')
 
-    await authMiddleware.handle({
-      headers: {
-        'x-access-token': 'any_token'
-      }
-    })
+    await authMiddleware.handle(makeFakeRequest())
 
     expect(loadSpy).toHaveBeenCalledWith('any_token')
   })
