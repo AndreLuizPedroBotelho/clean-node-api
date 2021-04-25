@@ -7,10 +7,10 @@ import { UpdateAccessTokenRepository } from '../../../../data/protocols/db/accou
 import { LoadAccountByTokenRepository } from '../../../../data/protocols/db/account/load-account-by-token-repository'
 
 export class AccountMongoRepository implements
-AddAccountRepository,
-LoadAccountByEmailRepository,
-UpdateAccessTokenRepository,
-LoadAccountByTokenRepository {
+        AddAccountRepository,
+        LoadAccountByEmailRepository,
+        UpdateAccessTokenRepository,
+        LoadAccountByTokenRepository {
   async add (accountData: AddAccountModel): Promise<AccountModel> {
     const accountCollection = await MongoHelper.getCollection('accounts')
     const result = await accountCollection.insertOne(accountData)
@@ -38,7 +38,13 @@ LoadAccountByTokenRepository {
     const accountCollection = await MongoHelper.getCollection('accounts')
     const account = await accountCollection.findOne({
       accessToken: token,
-      role
+      $or: [
+        {
+          role
+        }, {
+          role: 'admin'
+        }
+      ]
     })
 
     return account && MongoHelper.map(account)
