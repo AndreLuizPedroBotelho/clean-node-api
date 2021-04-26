@@ -1,6 +1,10 @@
 language: node_js
 node_js:
+<<<<<<< HEAD
   - "14.15.4"
+=======
+  - 12
+>>>>>>> 82ebfcfe2164e63aaedcc0a9f4e0b02ed4c35d57
 script:
   - eslint 'src/**'
-  - npm run test:coverall
+  - npm run test:coveralls
