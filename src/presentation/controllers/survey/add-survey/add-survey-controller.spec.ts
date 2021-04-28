@@ -1,7 +1,7 @@
 import { badRequest, noContent, serverError } from '../../../helpers/http/http-helper'
 import { AddSurveyController } from './add-survey-controller'
 import { HttpRequest, Validation, AddSurvey, AddSurveyModel } from './add-survey-controller-protocols'
-
+import MockDate from 'mockdate'
 interface AddSurveyControllerTypes{
   addSurveyController: AddSurveyController
   validationStub: Validation
@@ -14,7 +14,8 @@ const makeFakeRequest = (): HttpRequest => ({
     answers: [{
       image: 'any_image',
       answer: 'any_answer'
-    }]
+    }],
+    date: new Date()
   }
 })
 
@@ -52,6 +53,14 @@ const makeAddSurveyController = (): AddSurveyControllerTypes => {
 }
 
 describe('AddSurvey Controller', () => {
+  beforeAll(() => {
+    MockDate.set(new Date())
+  })
+
+  afterAll(() => {
+    MockDate.reset()
+  })
+
   test('Should can validation with correct values', async () => {
     const { addSurveyController, validationStub } = makeAddSurveyController()
     const httpRequest = makeFakeRequest()
