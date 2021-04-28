@@ -68,6 +68,15 @@ describe('DbLoadSurveys UseCase', () => {
     expect(loadSpy).toHaveBeenCalled()
   })
 
+  test('Should return a list of surveys on success', async () => {
+    const {
+      dbLoadSurveys
+    } = makeDbAddSurvey()
+
+    const surveys = await dbLoadSurveys.load()
+    expect(surveys).toEqual(makeFakeSurveys())
+  })
+
   test('Should throw if LoadSurveysRepository throw', async () => {
     const {
       dbLoadSurveys,
