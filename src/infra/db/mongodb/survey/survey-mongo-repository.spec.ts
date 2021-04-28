@@ -72,5 +72,11 @@ describe('Survey Mongo Repository', () => {
 
       expect(surveys.length).toBe(2)
     })
+    test('Should load empty list', async () => {
+      const surveyMongoRepository = makeSurveyMongoRepository()
+      const surveys = await surveyMongoRepository.loadAll()
+
+      expect(surveys.length).toBe(0)
+    })
   })
 })
