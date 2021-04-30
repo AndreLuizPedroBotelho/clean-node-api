@@ -9,7 +9,7 @@ import {
 import { AuthMiddleware } from './auth-middleware'
 import { AccessDeniedError } from '@/presentation/errors'
 
-interface AuthMiddlewareTypes{
+type AuthMiddlewareTypes = {
   authMiddleware: AuthMiddleware
   loadAccountByTokenStub: LoadAccountByToken
 }

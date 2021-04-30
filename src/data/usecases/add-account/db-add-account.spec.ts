@@ -7,7 +7,7 @@ import {
 } from './db-add-account-protocols'
 import { DbAddAccount } from './db-add-account'
 
-interface DbAddAccountTypes{
+type DbAddAccountTypes = {
   dbAddAccount: DbAddAccount
   hasherStub: Hasher
   addAccountRepositoryStub: AddAccountRepository

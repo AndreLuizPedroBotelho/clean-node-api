@@ -9,7 +9,7 @@ import {
   UpdateAccessTokenRepository
 } from './db-authentication-protocols'
 
-interface DbAddAccountTypes{
+type DbAddAccountTypes = {
   dbAuthentication: DbAuthentication
   loadAccountByEmailRepositoryStub: LoadAccountByEmailRepository
   hashComparerStub: HashComparer

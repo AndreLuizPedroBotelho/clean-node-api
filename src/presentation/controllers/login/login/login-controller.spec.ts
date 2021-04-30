@@ -29,7 +29,7 @@ const makeFakeRequest = (): HttpRequest => ({
     password: 'any_password'
   }
 })
-interface LoginControllerTypes{
+type LoginControllerTypes = {
   loginController: LoginController
   authenticationStub: Authentication
   validationStub: Validation

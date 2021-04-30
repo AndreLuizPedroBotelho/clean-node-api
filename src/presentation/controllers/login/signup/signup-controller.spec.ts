@@ -13,7 +13,7 @@ import {
 import { SignUpController } from './signup-controller'
 import { badRequest, ok, serverError, forbidden } from '@/presentation/helpers/http/http-helper'
 
-interface SignUpControllerTypes{
+type SignUpControllerTypes = {
   signUpController: SignUpController
   addAccountStub: AddAccount
   validationStub: Validation

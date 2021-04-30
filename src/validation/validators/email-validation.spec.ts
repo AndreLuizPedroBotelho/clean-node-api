@@ -3,7 +3,7 @@ import { InvalidParamError } from '@/presentation/errors'
 import { EmailValidator } from '@/validation/protocols/email-validator'
 import { EmailValidation } from './email-validaton'
 
-interface EmailValidationTypes{
+type EmailValidationTypes = {
   emailValidation: EmailValidation
   emailValidatorStub: EmailValidator
 }

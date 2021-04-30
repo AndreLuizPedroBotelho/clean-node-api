@@ -1,7 +1,7 @@
 import { Decrypter, LoadAccountByTokenRepository, AccountModel } from './db-load-account-by-token-protocols'
 import { DbLoadAccountByToken } from './db-load-account-by-token'
 
-interface DbLoadAccountByTokenTypes{
+type DbLoadAccountByTokenTypes = {
   dbLoadAccountByToken: DbLoadAccountByToken
   decrypterStub: Decrypter
   loadAccountByTokenRepository: LoadAccountByTokenRepository

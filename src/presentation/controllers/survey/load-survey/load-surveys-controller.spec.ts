@@ -4,7 +4,7 @@ import { LoadSurveysController } from './load-surveys-controller'
 import { LoadSurveys } from './load-surveys-controller-protocols'
 import MockDate from 'mockdate'
 
-interface LoadSurveyControllerTypes{
+type LoadSurveyControllerTypes = {
   loadSurveysController: LoadSurveysController
   loadSurveysStub: LoadSurveys
 }
