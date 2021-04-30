@@ -59,4 +59,13 @@ describe('DbLoadSurveyById UseCase', () => {
 
     expect(loadByIdSpy).toHaveBeenCalledWith('any_id')
   })
+
+  test('Should return a list of survey on success', async () => {
+    const {
+      dbLoadSurveyById
+    } = makeDbLoadSurveyById()
+
+    const survey = await dbLoadSurveyById.loadById('any_id')
+    expect(survey).toEqual(makeFakeSurveys())
+  })
 })
