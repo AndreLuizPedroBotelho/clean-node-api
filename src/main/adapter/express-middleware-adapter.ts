@@ -1,4 +1,4 @@
-import { HttpRequest, HttpResponse, Middleware } from '../../presentation/protocols'
+import { HttpRequest, HttpResponse, Middleware } from '@/presentation/protocols'
 import { Response, Request, NextFunction } from 'express'
 
 export const adapterMiddleware = (middleware: Middleware) => {

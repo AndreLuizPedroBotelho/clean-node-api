@@ -14,5 +14,8 @@ module.exports = {
   transform: {
     '.+\\.ts$': 'ts-jest'
   },
-  coverageProvider: 'babel'
+  coverageProvider: 'babel',
+  moduleNameMapper: {
+    '@/(.*)': '<rootDir>/src/$1'
+  }
 }

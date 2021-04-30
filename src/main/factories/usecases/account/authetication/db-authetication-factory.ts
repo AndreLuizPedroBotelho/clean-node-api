@@ -1,10 +1,10 @@
-import { Authentication } from './../../../../../domain/usecases/authentication'
-import { JwtAdapter } from '../../../../../infra/criptography/jwt-adapter/jwt-adapter'
-import { BcryptAdapter } from '../../../../../infra/criptography/bcrypt-adapter/bcrypt-adapter'
-import { AccountMongoRepository } from '../../../../../infra/db/mongodb/account/account-mongo-repository'
+import { Authentication } from '@/domain/usecases/authentication'
+import { JwtAdapter } from '@/infra/criptography/jwt-adapter/jwt-adapter'
+import { BcryptAdapter } from '@/infra/criptography/bcrypt-adapter/bcrypt-adapter'
+import { AccountMongoRepository } from '@/infra/db/mongodb/account/account-mongo-repository'
 
-import { DbAuthentication } from '../../../../../data/usecases/authentication/db-authentication'
-import env from '../../../../config/env'
+import { DbAuthentication } from '@/data/usecases/authentication/db-authentication'
+import env from '@/main/config/env'
 
 export const makeDbAutentication = (): Authentication => {
   const salt = 12

@@ -1,6 +1,7 @@
 import { Collection } from 'mongodb'
-import { AccountModel } from '../../../../domain/models/account'
 import { MongoHelper } from '../helpers/mongo-helper'
+
+import { AccountModel } from '@/domain/models/account'
 import { AccountMongoRepository } from './account-mongo-repository'
 
 let accountCollection: Collection

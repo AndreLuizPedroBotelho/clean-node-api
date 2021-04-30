@@ -7,7 +7,7 @@ import {
   serverError
 } from './auth-middleware-protocols'
 import { AuthMiddleware } from './auth-middleware'
-import { AccessDeniedError } from '../errors'
+import { AccessDeniedError } from '@/presentation/errors'
 
 interface AuthMiddlewareTypes{
   authMiddleware: AuthMiddleware

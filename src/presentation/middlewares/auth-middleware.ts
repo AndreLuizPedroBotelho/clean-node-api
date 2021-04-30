@@ -1,4 +1,4 @@
-import { AccessDeniedError } from '../errors'
+import { AccessDeniedError } from '@/presentation/errors'
 import {
   LoadAccountByToken,
   HttpRequest,
