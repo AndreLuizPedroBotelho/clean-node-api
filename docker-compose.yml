@@ -1,14 +1,25 @@
 version: "3"
 services:
+  mongo:
+    image: mongo:4.4
+    restart: always
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27017:27017"
   api:
     container_name: api_container
     restart: always
     image: node:14
     working_dir: /usr/src/clean-node-api
     command: bash -c "npm install --only=prod && npm run debug"
+    enviroment:
+      - MONGO_URL ='mongodb://mongo:27017/clean-node-api'
     volumes:
       - ./dist/:/usr/src/clean-node-api/dist/
       - ./package.json:/usr/src/clean-node-api/package.json
     ports:
       - "5000:5000"
       - "9222:9222"
+    links:
+      - mongo
