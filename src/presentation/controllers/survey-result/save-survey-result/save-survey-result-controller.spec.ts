@@ -6,7 +6,8 @@ import {
   SaveSurveyResultModel,
   HttpRequest,
   SurveyModel,
-  LoadSurveyById
+  LoadSurveyById,
+  InvalidParamError
 } from './save-survey-result-controller-protocols'
 
 import MockDate from 'mockdate'
@@ -114,7 +115,7 @@ describe('SaveSurveyResult Controller', () => {
 
     const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
 
-    expect(httpResponse).toEqual(forbidden(new Error()))
+    expect(httpResponse).toEqual(forbidden(new InvalidParamError('surveyId')))
   })
 
   test('Should call SaveSurveyResult', async () => {
