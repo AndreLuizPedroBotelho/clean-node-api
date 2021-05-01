@@ -1,14 +1,23 @@
-import { ok } from '@/presentation/helpers/http/http-helper'
-import { Controller, HttpRequest, HttpResponse, SaveSurveyResult } from './save-survey-result-controller-protocols'
+import { forbidden, ok } from '@/presentation/helpers/http/http-helper'
+import { Controller, HttpRequest, HttpResponse, SaveSurveyResult, LoadSurveyById } from './save-survey-result-controller-protocols'
 
 export class SaveSurveyResultController implements Controller {
   constructor (
+    private readonly loadSurveyById: LoadSurveyById,
     private readonly saveSurveyResult: SaveSurveyResult
-
   ) {}
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
-    await this.saveSurveyResult.save(httpRequest.body)
+    const survey = await this.loadSurveyById.loadById(httpRequest.params.surveyId)
+
+    if (!survey) {
+      return forbidden(new Error())
+    }
+
+    await this.saveSurveyResult.save({
+      surveyId: survey.id,
+      ...httpRequest.body
+    })
 
     return ok('')
   }
