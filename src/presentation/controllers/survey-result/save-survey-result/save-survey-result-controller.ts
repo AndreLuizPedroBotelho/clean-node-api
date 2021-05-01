@@ -1,5 +1,12 @@
 import { forbidden, ok } from '@/presentation/helpers/http/http-helper'
-import { Controller, HttpRequest, HttpResponse, SaveSurveyResult, LoadSurveyById } from './save-survey-result-controller-protocols'
+import {
+  Controller,
+  HttpRequest,
+  HttpResponse,
+  SaveSurveyResult,
+  LoadSurveyById,
+  InvalidParamError
+} from './save-survey-result-controller-protocols'
 
 export class SaveSurveyResultController implements Controller {
   constructor (
@@ -11,7 +18,7 @@ export class SaveSurveyResultController implements Controller {
     const survey = await this.loadSurveyById.loadById(httpRequest.params.surveyId)
 
     if (!survey) {
-      return forbidden(new Error())
+      return forbidden(new InvalidParamError('surveyId'))
     }
 
     await this.saveSurveyResult.save({
