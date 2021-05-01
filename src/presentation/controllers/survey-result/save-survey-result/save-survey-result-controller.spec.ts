@@ -118,6 +118,20 @@ describe('SaveSurveyResult Controller', () => {
     expect(httpResponse).toEqual(forbidden(new InvalidParamError('surveyId')))
   })
 
+  test('Should return 500 if LoadSurveyById throws', async () => {
+    const {
+      saveSurveyResultController,
+      loadSurveyByIdStub
+    } = makeSaveSurveysResultController()
+
+    jest.spyOn(loadSurveyByIdStub, 'loadById').mockReturnValueOnce(new Promise((resolve, reject) =>
+      reject(new Error())
+    ))
+
+    const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
   test('Should call SaveSurveyResult', async () => {
     const {
       saveSurveyResultController,
