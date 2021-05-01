@@ -1,7 +1,7 @@
-import { noContent, ok, serverError } from '@/presentation/helpers/http/http-helper'
-import { SurveyModel } from '@/domain/models/survey'
+import { ok, noContent, serverError } from '@/presentation/helpers/http/http-helper'
+
 import { LoadSurveysController } from './load-surveys-controller'
-import { LoadSurveys } from './load-surveys-controller-protocols'
+import { LoadSurveys, SurveyModel } from './load-surveys-controller-protocols'
 import MockDate from 'mockdate'
 
 type LoadSurveyControllerTypes = {
