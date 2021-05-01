@@ -12,7 +12,7 @@ import {
 
 import MockDate from 'mockdate'
 
-type SaveSurveyResultControllerControllerTypes = {
+type SaveSurveyResultControllerTypes = {
   saveSurveyResultController: SaveSurveyResultController
   saveSurveyResultStub: SaveSurveyResult
   loadSurveyByIdStub: LoadSurveyById
@@ -69,7 +69,7 @@ const makeSaveSurveyResult = (): SaveSurveyResult => {
   return new SaveSurveyResultStub()
 }
 
-const makeLoadSurveysController = (): SaveSurveyResultControllerControllerTypes => {
+const makeSaveSurveysResultController = (): SaveSurveyResultControllerTypes => {
   const saveSurveyResultStub = makeSaveSurveyResult()
   const loadSurveyByIdStub = makeLoadSurveyById()
 
@@ -95,7 +95,7 @@ describe('SaveSurveyResult Controller', () => {
     const {
       saveSurveyResultController,
       loadSurveyByIdStub
-    } = makeLoadSurveysController()
+    } = makeSaveSurveysResultController()
 
     const loadSurveyByIdSpy = jest.spyOn(loadSurveyByIdStub, 'loadById')
     await saveSurveyResultController.handle(makeFakeRequest())
@@ -107,7 +107,7 @@ describe('SaveSurveyResult Controller', () => {
     const {
       saveSurveyResultController,
       loadSurveyByIdStub
-    } = makeLoadSurveysController()
+    } = makeSaveSurveysResultController()
 
     jest
       .spyOn(loadSurveyByIdStub, 'loadById')
@@ -122,7 +122,7 @@ describe('SaveSurveyResult Controller', () => {
     const {
       saveSurveyResultController,
       saveSurveyResultStub
-    } = makeLoadSurveysController()
+    } = makeSaveSurveysResultController()
 
     const saveSpy = jest.spyOn(saveSurveyResultStub, 'save')
     await saveSurveyResultController.handle(makeFakeRequest())
