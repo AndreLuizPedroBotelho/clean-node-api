@@ -1,15 +1,35 @@
+import { forbidden } from '@/presentation/helpers/http/http-helper'
 import { SaveSurveyResultController } from './save-survey-result-controller'
-import { SaveSurveyResult, SurveyResultModel, SaveSurveyResultModel } from './save-survey-result-controller-protocols'
+import {
+  SaveSurveyResult,
+  SurveyResultModel,
+  SaveSurveyResultModel,
+  HttpRequest,
+  SurveyModel,
+  LoadSurveyById
+} from './save-survey-result-controller-protocols'
 
 import MockDate from 'mockdate'
 
 type SaveSurveyResultControllerControllerTypes = {
   saveSurveyResultController: SaveSurveyResultController
   saveSurveyResultStub: SaveSurveyResult
+  loadSurveyByIdStub: LoadSurveyById
 }
 
-const makeFakeSurveyResultData = (): SaveSurveyResultModel => ({
-  surveyId: 'any_survey_id',
+const makeFakeSurvey = (): SurveyModel => (
+  {
+    id: 'any_survey_id',
+    question: 'any_question',
+    answers: [{
+      image: 'any_image',
+      answer: 'any_answer'
+    }],
+    date: new Date()
+  }
+)
+
+const makeFakeSurveyResultData = (): Omit<SaveSurveyResultModel, 'surveyId'> => ({
   accountId: 'any_account_id',
   answer: 'any_answer',
   date: new Date()
@@ -17,8 +37,26 @@ const makeFakeSurveyResultData = (): SaveSurveyResultModel => ({
 
 const makeFakeSurveyResult = (): SurveyResultModel => ({
   id: 'any_id',
+  surveyId: 'any_survey_id',
   ...makeFakeSurveyResultData()
 })
+
+const makeFakeRequest = (): HttpRequest => ({
+  params: {
+    surveyId: 'any_survey_id'
+  },
+  body: makeFakeSurveyResultData()
+})
+
+const makeLoadSurveyById = (): LoadSurveyById => {
+  class LoadSurveyByIdStub implements LoadSurveyById {
+    async loadById (id: string): Promise<SurveyModel> {
+      return await new Promise(resolve => resolve(makeFakeSurvey()))
+    }
+  }
+
+  return new LoadSurveyByIdStub()
+}
 
 const makeSaveSurveyResult = (): SaveSurveyResult => {
   class SaveSurveyResultStub implements SaveSurveyResult {
@@ -32,11 +70,14 @@ const makeSaveSurveyResult = (): SaveSurveyResult => {
 
 const makeLoadSurveysController = (): SaveSurveyResultControllerControllerTypes => {
   const saveSurveyResultStub = makeSaveSurveyResult()
-  const saveSurveyResultController = new SaveSurveyResultController(saveSurveyResultStub)
+  const loadSurveyByIdStub = makeLoadSurveyById()
+
+  const saveSurveyResultController = new SaveSurveyResultController(loadSurveyByIdStub, saveSurveyResultStub)
 
   return {
     saveSurveyResultController,
-    saveSurveyResultStub
+    saveSurveyResultStub,
+    loadSurveyByIdStub
   }
 }
 
@@ -49,17 +90,45 @@ describe('SaveSurveyResult Controller', () => {
     MockDate.reset()
   })
 
-  test('Should call LoadSurveys', async () => {
+  test('Should call LoadSurveyById', async () => {
+    const {
+      saveSurveyResultController,
+      loadSurveyByIdStub
+    } = makeLoadSurveysController()
+
+    const loadSurveyByIdSpy = jest.spyOn(loadSurveyByIdStub, 'loadById')
+    await saveSurveyResultController.handle(makeFakeRequest())
+
+    expect(loadSurveyByIdSpy).toHaveBeenCalledWith('any_survey_id')
+  })
+
+  test('Should return 403 if LoadSurveyById returns null', async () => {
+    const {
+      saveSurveyResultController,
+      loadSurveyByIdStub
+    } = makeLoadSurveysController()
+
+    jest
+      .spyOn(loadSurveyByIdStub, 'loadById')
+      .mockReturnValueOnce(new Promise(resolve => resolve(null as any)))
+
+    const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(forbidden(new Error()))
+  })
+
+  test('Should call SaveSurveyResult', async () => {
     const {
       saveSurveyResultController,
       saveSurveyResultStub
     } = makeLoadSurveysController()
 
     const saveSpy = jest.spyOn(saveSurveyResultStub, 'save')
-    await saveSurveyResultController.handle({
-      body: makeFakeSurveyResultData()
-    })
+    await saveSurveyResultController.handle(makeFakeRequest())
 
-    expect(saveSpy).toHaveBeenCalled()
+    expect(saveSpy).toHaveBeenCalledWith({
+      surveyId: 'any_survey_id',
+      ...makeFakeSurveyResultData()
+    })
   })
 })
