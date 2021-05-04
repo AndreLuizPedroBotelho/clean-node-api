@@ -118,6 +118,23 @@ describe('SaveSurveyResult Controller', () => {
     expect(httpResponse).toEqual(forbidden(new InvalidParamError('surveyId')))
   })
 
+  test('Should return 403 if an invalid answer is provided', async () => {
+    const {
+      saveSurveyResultController
+    } = makeSaveSurveysResultController()
+
+    const httpResponse = await saveSurveyResultController.handle({
+      body: {
+        answer: 'wrong_answer'
+      },
+      params: {
+        surveyId: 'any_survey_id'
+      }
+    })
+
+    expect(httpResponse).toEqual(forbidden(new InvalidParamError('surveyId')))
+  })
+
   test('Should return 500 if LoadSurveyById throws', async () => {
     const {
       saveSurveyResultController,
