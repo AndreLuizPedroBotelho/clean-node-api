@@ -30,8 +30,7 @@ const makeFakeSurvey = (): SurveyModel => (
   }
 )
 
-const makeFakeSurveyResultData = (): Omit<SaveSurveyResultModel, 'surveyId'> => ({
-  accountId: 'any_account_id',
+const makeFakeSurveyResultData = (): Omit<SaveSurveyResultModel, 'surveyId'| 'accountId'> => ({
   answer: 'any_answer',
   date: new Date()
 })
@@ -39,6 +38,7 @@ const makeFakeSurveyResultData = (): Omit<SaveSurveyResultModel, 'surveyId'> => 
 const makeFakeSurveyResult = (): SurveyResultModel => ({
   id: 'any_id',
   surveyId: 'any_survey_id',
+  accountId: 'any_account_id',
   ...makeFakeSurveyResultData()
 })
 
@@ -46,7 +46,9 @@ const makeFakeRequest = (): HttpRequest => ({
   params: {
     surveyId: 'any_survey_id'
   },
-  body: makeFakeSurveyResultData()
+  body: makeFakeSurveyResultData(),
+  accountId: 'any_account_id'
+
 })
 
 const makeLoadSurveyById = (): LoadSurveyById => {
@@ -160,6 +162,7 @@ describe('SaveSurveyResult Controller', () => {
 
     expect(saveSpy).toHaveBeenCalledWith({
       surveyId: 'any_survey_id',
+      accountId: 'any_account_id',
       ...makeFakeSurveyResultData()
     })
   })
