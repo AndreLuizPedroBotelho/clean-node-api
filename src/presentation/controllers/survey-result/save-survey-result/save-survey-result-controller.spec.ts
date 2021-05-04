@@ -1,4 +1,4 @@
-import { forbidden, serverError } from '@/presentation/helpers/http/http-helper'
+import { forbidden, serverError, ok } from '@/presentation/helpers/http/http-helper'
 import { SaveSurveyResultController } from './save-survey-result-controller'
 import {
   SaveSurveyResult,
@@ -179,5 +179,14 @@ describe('SaveSurveyResult Controller', () => {
 
     const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  test('Should return 200 on success', async () => {
+    const {
+      saveSurveyResultController
+    } = makeSaveSurveysResultController()
+
+    const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
+    expect(httpResponse).toEqual(ok(makeFakeSurveyResult()))
   })
 })
