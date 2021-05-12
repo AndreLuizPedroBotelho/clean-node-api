@@ -1,6 +1,6 @@
 import {
   Hasher,
-  AddAccountModel,
+  AddAccountParams,
   AccountModel,
   AddAccountRepository,
   LoadAccountByEmailRepository
@@ -21,7 +21,7 @@ const makeFakeAccount = (): AccountModel => ({
   password: 'valid_password'
 })
 
-const makeFakeAccountData = (): AddAccountModel => ({
+const makeFakeAccountData = (): AddAccountParams => ({
   name: 'valid_name',
   email: 'valid_email@mail.com',
   password: 'valid_password'
@@ -49,7 +49,7 @@ const makeHasher = (): Hasher => {
 
 const makeAddAccountRepository = (): AddAccountRepository => {
   class AddAccountRepositoryStub implements AddAccountRepository {
-    async add (account: AddAccountModel): Promise<AccountModel> {
+    async add (account: AddAccountParams): Promise<AccountModel> {
       return await new Promise(resolve => resolve(makeFakeAccount()))
     }
   }
@@ -91,7 +91,7 @@ describe('DbAddAccount UseCase', () => {
     await expect(promise).rejects.toThrow()
   })
 
-  test('Should call AddAcountRepository with correct values', async () => {
+  test('Should call AddAccountRepository with correct values', async () => {
     const { addAccountRepositoryStub, dbAddAccount } = makeDbAddAccount()
     const addSpy = jest.spyOn(addAccountRepositoryStub, 'add')
 
@@ -103,7 +103,7 @@ describe('DbAddAccount UseCase', () => {
     })
   })
 
-  test('Should throw if AddAcountRepository throw', async () => {
+  test('Should throw if AddAccountRepository throw', async () => {
     const { addAccountRepositoryStub, dbAddAccount } = makeDbAddAccount()
     jest.spyOn(addAccountRepositoryStub, 'add').mockReturnValue(
       new Promise((resolve, reject) => reject(new Error()))

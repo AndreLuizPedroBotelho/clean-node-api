@@ -3,7 +3,7 @@ import { SaveSurveyResultController } from './save-survey-result-controller'
 import {
   SaveSurveyResult,
   SurveyResultModel,
-  SaveSurveyResultModel,
+  SaveSurveyResultParams,
   HttpRequest,
   SurveyModel,
   LoadSurveyById,
@@ -30,7 +30,7 @@ const makeFakeSurvey = (): SurveyModel => (
   }
 )
 
-const makeFakeSurveyResultData = (): Omit<SaveSurveyResultModel, 'surveyId'| 'accountId'> => ({
+const makeFakeSurveyResultData = (): Omit<SaveSurveyResultParams, 'surveyId'| 'accountId'> => ({
   answer: 'any_answer',
   date: new Date()
 })
@@ -63,7 +63,7 @@ const makeLoadSurveyById = (): LoadSurveyById => {
 
 const makeSaveSurveyResult = (): SaveSurveyResult => {
   class SaveSurveyResultStub implements SaveSurveyResult {
-    async save (account: SaveSurveyResultModel): Promise<SurveyResultModel> {
+    async save (account: SaveSurveyResultParams): Promise<SurveyResultModel> {
       return await new Promise(resolve => resolve(makeFakeSurveyResult()))
     }
   }
