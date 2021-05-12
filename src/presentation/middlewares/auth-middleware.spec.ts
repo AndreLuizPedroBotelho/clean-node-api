@@ -1,3 +1,4 @@
+import { throwError } from '@/domain/test'
 import {
   LoadAccountByToken,
   HttpRequest,
@@ -85,9 +86,7 @@ describe('Auth Middleware', () => {
 
   test('Should return 500 if LoadAccountByToken throws', async () => {
     const { authMiddleware, loadAccountByTokenStub } = makeAuthMiddleware()
-    jest.spyOn(loadAccountByTokenStub, 'load').mockReturnValueOnce(new Promise((resolve, reject) => {
-      reject(new Error())
-    }))
+    jest.spyOn(loadAccountByTokenStub, 'load').mockImplementationOnce(throwError)
 
     const httpResponse = await authMiddleware.handle(makeFakeRequest())
 

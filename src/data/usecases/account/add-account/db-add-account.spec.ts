@@ -1,3 +1,4 @@
+import { mockAddAccountParams, mockAccountModel, throwError } from '@/domain/test'
 import {
   Hasher,
   AddAccountParams,
@@ -13,19 +14,6 @@ type DbAddAccountTypes = {
   addAccountRepositoryStub: AddAccountRepository
   loadAccountByEmailRepositoryStub: LoadAccountByEmailRepository
 }
-
-const makeFakeAccount = (): AccountModel => ({
-  id: 'valid_id',
-  name: 'valid_name',
-  email: 'valid_email@mail.com',
-  password: 'valid_password'
-})
-
-const makeFakeAccountData = (): AddAccountParams => ({
-  name: 'valid_name',
-  email: 'valid_email@mail.com',
-  password: 'valid_password'
-})
 
 const makeLoadAccountByEmailRepository = (): LoadAccountByEmailRepository => {
   class LoadAccountByEmailRepositoryStub implements LoadAccountByEmailRepository {
@@ -50,7 +38,7 @@ const makeHasher = (): Hasher => {
 const makeAddAccountRepository = (): AddAccountRepository => {
   class AddAccountRepositoryStub implements AddAccountRepository {
     async add (account: AddAccountParams): Promise<AccountModel> {
-      return await new Promise(resolve => resolve(makeFakeAccount()))
+      return await new Promise(resolve => resolve(mockAccountModel()))
     }
   }
 
@@ -76,17 +64,16 @@ describe('DbAddAccount UseCase', () => {
     const { hasherStub, dbAddAccount } = makeDbAddAccount()
     const hashSpy = jest.spyOn(hasherStub, 'hash')
 
-    await dbAddAccount.add(makeFakeAccountData())
-    expect(hashSpy).toHaveBeenCalledWith('valid_password')
+    await dbAddAccount.add(mockAddAccountParams())
+    expect(hashSpy).toHaveBeenCalledWith('any_password')
   })
 
   test('Should throw if Hasher throw', async () => {
     const { hasherStub, dbAddAccount } = makeDbAddAccount()
-    jest.spyOn(hasherStub, 'hash').mockReturnValue(
-      new Promise((resolve, reject) => reject(new Error()))
-    )
 
-    const promise = dbAddAccount.add(makeFakeAccountData())
+    jest.spyOn(hasherStub, 'hash').mockImplementationOnce(throwError)
+
+    const promise = dbAddAccount.add(mockAddAccountParams())
 
     await expect(promise).rejects.toThrow()
   })
@@ -95,21 +82,19 @@ describe('DbAddAccount UseCase', () => {
     const { addAccountRepositoryStub, dbAddAccount } = makeDbAddAccount()
     const addSpy = jest.spyOn(addAccountRepositoryStub, 'add')
 
-    await dbAddAccount.add(makeFakeAccountData())
+    await dbAddAccount.add(mockAddAccountParams())
     expect(addSpy).toHaveBeenCalledWith({
-      name: 'valid_name',
-      email: 'valid_email@mail.com',
+      name: 'any_name',
+      email: 'any_email@mail.com',
       password: 'hashed_password'
     })
   })
 
   test('Should throw if AddAccountRepository throw', async () => {
     const { addAccountRepositoryStub, dbAddAccount } = makeDbAddAccount()
-    jest.spyOn(addAccountRepositoryStub, 'add').mockReturnValue(
-      new Promise((resolve, reject) => reject(new Error()))
-    )
+    jest.spyOn(addAccountRepositoryStub, 'add').mockImplementationOnce(throwError)
 
-    const promise = dbAddAccount.add(makeFakeAccountData())
+    const promise = dbAddAccount.add(mockAddAccountParams())
 
     await expect(promise).rejects.toThrow()
   })
@@ -117,18 +102,18 @@ describe('DbAddAccount UseCase', () => {
   test('Should return an account on success', async () => {
     const { dbAddAccount } = makeDbAddAccount()
 
-    const account = await dbAddAccount.add(makeFakeAccountData())
-    expect(account).toEqual(makeFakeAccount())
+    const account = await dbAddAccount.add(mockAddAccountParams())
+    expect(account).toEqual(mockAccountModel())
   })
 
   test('Should return null if LoadAccountByEmailRepository not returns null', async () => {
     const { dbAddAccount, loadAccountByEmailRepositoryStub } = makeDbAddAccount()
 
     jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail').mockImplementationOnce(async () => {
-      return await new Promise(resolve => resolve(makeFakeAccount()))
+      return await new Promise(resolve => resolve(mockAccountModel()))
     })
 
-    const account = await dbAddAccount.add(makeFakeAccountData())
+    const account = await dbAddAccount.add(mockAddAccountParams())
     expect(account).toBeNull()
   })
 
@@ -137,8 +122,8 @@ describe('DbAddAccount UseCase', () => {
 
     const loadByEmailSpy = jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail')
 
-    await dbAddAccount.add(makeFakeAccountData())
+    await dbAddAccount.add(mockAddAccountParams())
 
-    expect(loadByEmailSpy).toHaveBeenCalledWith('valid_email@mail.com')
+    expect(loadByEmailSpy).toHaveBeenCalledWith('any_email@mail.com')
   })
 })

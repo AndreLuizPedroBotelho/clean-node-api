@@ -1,3 +1,4 @@
+import { throwError } from '@/domain/test'
 import { DbLoadSurveyById } from './db-load-survey-by-id'
 
 import { SurveyModel, LoadSurveyByIdRepository } from './db-load-survey-by-id-protocols'
@@ -76,9 +77,7 @@ describe('DbLoadSurveyById UseCase', () => {
     } = makeDbLoadSurveyById()
 
     jest.spyOn(loadSurveyByIdRepositoryStub, 'loadById')
-      .mockReturnValue(
-        new Promise((resolve, reject) => reject(new Error()))
-      )
+      .mockImplementationOnce(throwError)
 
     const promise = dbLoadSurveyById.loadById('any_id')
 

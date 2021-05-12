@@ -1,3 +1,4 @@
+import { throwError } from '@/domain/test'
 import {
   SurveyResultModel,
   SaveSurveyResultParams,
@@ -75,9 +76,7 @@ describe('DbSaveSurveyResult UseCase', () => {
     const surveyResult = makeFakeSurveyResultData()
 
     jest.spyOn(saveSurveyResultRepositoryStub, 'save')
-      .mockReturnValue(
-        new Promise((resolve, reject) => reject(new Error()))
-      )
+      .mockImplementationOnce(throwError)
 
     const promise = dbSaveSurveyResult.save(surveyResult)
 

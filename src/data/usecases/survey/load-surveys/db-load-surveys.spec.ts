@@ -1,3 +1,4 @@
+import { throwError } from '@/domain/test'
 import { SurveyModel, LoadSurveysRepository } from './db-load-surveys-protocols'
 import { DbLoadSurveys } from './db-load-surveys'
 import MockDate from 'mockdate'
@@ -84,9 +85,7 @@ describe('DbLoadSurveys UseCase', () => {
     } = makeDbAddSurvey()
 
     jest.spyOn(loadSurveysRepositoryStub, 'loadAll')
-      .mockReturnValue(
-        new Promise((resolve, reject) => reject(new Error()))
-      )
+      .mockImplementationOnce(throwError)
 
     const promise = dbLoadSurveys.load()
 

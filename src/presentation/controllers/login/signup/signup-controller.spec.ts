@@ -1,3 +1,4 @@
+import { throwError } from '@/domain/test'
 import { MissingParamError, ServerError, EmailInUseError } from '@/presentation/errors'
 
 import {
@@ -100,9 +101,7 @@ describe('SignUp Controller', () => {
 
   test('Should return 500 if AddAccount throws', async () => {
     const { signUpController, addAccountStub } = makeSignUpController()
-    jest.spyOn(addAccountStub, 'add').mockImplementationOnce(async () => {
-      return await new Promise((resolve, reject) => reject(new Error()))
-    })
+    jest.spyOn(addAccountStub, 'add').mockImplementationOnce(throwError)
 
     const httpResponse = await signUpController.handle(makeFakeRequest())
 
@@ -163,9 +162,7 @@ describe('SignUp Controller', () => {
   test('Should return 500 if Authentication throws', async () => {
     const { signUpController, authenticationStub } = makeSignUpController()
 
-    jest.spyOn(authenticationStub, 'auth').mockReturnValueOnce(new Promise((resolve, reject) =>
-      reject(new Error())
-    ))
+    jest.spyOn(authenticationStub, 'auth').mockImplementationOnce(throwError)
 
     const httpResponse = await signUpController.handle(makeFakeRequest())
     expect(httpResponse).toEqual(serverError(new Error()))

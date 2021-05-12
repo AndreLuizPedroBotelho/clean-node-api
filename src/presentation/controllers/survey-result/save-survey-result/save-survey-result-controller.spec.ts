@@ -1,3 +1,4 @@
+import { throwError } from '@/domain/test'
 import { forbidden, serverError, ok } from '@/presentation/helpers/http/http-helper'
 import { SaveSurveyResultController } from './save-survey-result-controller'
 import {
@@ -143,9 +144,7 @@ describe('SaveSurveyResult Controller', () => {
       loadSurveyByIdStub
     } = makeSaveSurveysResultController()
 
-    jest.spyOn(loadSurveyByIdStub, 'loadById').mockReturnValueOnce(new Promise((resolve, reject) =>
-      reject(new Error())
-    ))
+    jest.spyOn(loadSurveyByIdStub, 'loadById').mockImplementationOnce(throwError)
 
     const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
@@ -173,9 +172,7 @@ describe('SaveSurveyResult Controller', () => {
       saveSurveyResultStub
     } = makeSaveSurveysResultController()
 
-    jest.spyOn(saveSurveyResultStub, 'save').mockReturnValueOnce(new Promise((resolve, reject) =>
-      reject(new Error())
-    ))
+    jest.spyOn(saveSurveyResultStub, 'save').mockImplementationOnce(throwError)
 
     const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
