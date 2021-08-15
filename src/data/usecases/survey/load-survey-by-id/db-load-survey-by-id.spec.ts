@@ -1,37 +1,17 @@
-import { throwError } from '@/domain/test'
+import { throwError, mockSurveyModel } from '@/domain/test'
 import { DbLoadSurveyById } from './db-load-survey-by-id'
 
-import { SurveyModel, LoadSurveyByIdRepository } from './db-load-survey-by-id-protocols'
+import { LoadSurveyByIdRepository } from './db-load-survey-by-id-protocols'
 import MockDate from 'mockdate'
+import { mockLoadSurveyByIdRepository } from '../../../test'
 
 type DbLoadSurveyByIdTypes = {
   dbLoadSurveyById: DbLoadSurveyById
   loadSurveyByIdRepositoryStub: LoadSurveyByIdRepository
 }
 
-const makeFakeSurveys = (): SurveyModel => (
-  {
-    id: 'any_id',
-    question: 'any_question',
-    answers: [{
-      image: 'any_image',
-      answer: 'any_answer'
-    }],
-    date: new Date()
-  })
-
-const makeLoadSurveyByIdRepository = (): LoadSurveyByIdRepository => {
-  class LoadSurveyByIdRepositoryStub implements LoadSurveyByIdRepository {
-    async loadById (id: string): Promise<SurveyModel> {
-      return await new Promise(resolve => resolve(makeFakeSurveys()))
-    }
-  }
-
-  return new LoadSurveyByIdRepositoryStub()
-}
-
 const makeDbLoadSurveyById = (): DbLoadSurveyByIdTypes => {
-  const loadSurveyByIdRepositoryStub = makeLoadSurveyByIdRepository()
+  const loadSurveyByIdRepositoryStub = mockLoadSurveyByIdRepository()
   const dbLoadSurveyById = new DbLoadSurveyById(loadSurveyByIdRepositoryStub)
 
   return {
@@ -67,7 +47,7 @@ describe('DbLoadSurveyById UseCase', () => {
     } = makeDbLoadSurveyById()
 
     const survey = await dbLoadSurveyById.loadById('any_id')
-    expect(survey).toEqual(makeFakeSurveys())
+    expect(survey).toEqual(mockSurveyModel())
   })
 
   test('Should throw if LoadSurveyByIdRepository throw', async () => {

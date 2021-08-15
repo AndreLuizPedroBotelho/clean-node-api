@@ -1,3 +1,4 @@
+import { mockEmailValidator } from '@/validation/test'
 
 import { InvalidParamError } from '@/presentation/errors'
 import { EmailValidator } from '@/validation/protocols/email-validator'
@@ -8,18 +9,8 @@ type EmailValidationTypes = {
   emailValidatorStub: EmailValidator
 }
 
-const makeEmailValidator = (): EmailValidator => {
-  class EmailValidatorStub implements EmailValidator {
-    isValid (email: string): boolean {
-      return true
-    }
-  }
-
-  return new EmailValidatorStub()
-}
-
 const makeEmailValidation = (): EmailValidationTypes => {
-  const emailValidatorStub = makeEmailValidator()
+  const emailValidatorStub = mockEmailValidator()
 
   const emailValidation = new EmailValidation('email', emailValidatorStub)
 

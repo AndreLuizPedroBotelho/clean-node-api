@@ -3,6 +3,7 @@ import { MongoHelper } from '../helpers/mongo-helper'
 
 import { AccountModel } from '@/domain/models/account'
 import { AccountMongoRepository } from './account-mongo-repository'
+import { mockAccountParams, mockAccountWithTokenParams } from '@/domain/test'
 
 let accountCollection: Collection
 
@@ -11,11 +12,7 @@ const makeAccountMongoRepository = (): AccountMongoRepository => {
 }
 
 const makeFakeAccount = async (): Promise<AccountModel> => {
-  const res = await accountCollection.insertOne({
-    name: 'any_name',
-    email: 'any_email@mail.com',
-    password: 'any_password'
-  })
+  const res = await accountCollection.insertOne(mockAccountParams())
 
   return MongoHelper.map(res.ops[0])
 }
@@ -42,11 +39,7 @@ describe('Account Mongo Repository', () => {
   describe('add()', () => {
     test('Should return an account on add success', async () => {
       const accountMongoRepository = makeAccountMongoRepository()
-      const account = await accountMongoRepository.add({
-        name: 'any_name',
-        email: 'any_email@mail.com',
-        password: 'any_password'
-      })
+      const account = await accountMongoRepository.add(mockAccountParams())
 
       expect(account).toBeTruthy()
       expect(account.id).toBeTruthy()
@@ -102,10 +95,7 @@ describe('Account Mongo Repository', () => {
       const accountMongoRepository = makeAccountMongoRepository()
 
       await accountCollection.insertOne({
-        name: 'any_name',
-        email: 'any_email@mail.com',
-        password: 'any_password',
-        accessToken: 'any_token'
+        ...mockAccountWithTokenParams()
       })
 
       const account = await accountMongoRepository.loadByToken('any_token')
@@ -122,11 +112,8 @@ describe('Account Mongo Repository', () => {
       const accountMongoRepository = makeAccountMongoRepository()
 
       await accountCollection.insertOne({
-        name: 'any_name',
-        email: 'any_email@mail.com',
-        password: 'any_password',
-        accessToken: 'any_token',
-        role: 'admin'
+        role: 'admin',
+        ...mockAccountWithTokenParams()
       })
 
       const account = await accountMongoRepository.loadByToken('any_token', 'admin')
@@ -143,10 +130,7 @@ describe('Account Mongo Repository', () => {
       const accountMongoRepository = makeAccountMongoRepository()
 
       await accountCollection.insertOne({
-        name: 'any_name',
-        email: 'any_email@mail.com',
-        password: 'any_password',
-        accessToken: 'any_token'
+        ...mockAccountWithTokenParams()
       })
 
       const account = await accountMongoRepository.loadByToken('any_token', 'admin')
@@ -158,11 +142,8 @@ describe('Account Mongo Repository', () => {
       const accountMongoRepository = makeAccountMongoRepository()
 
       await accountCollection.insertOne({
-        name: 'any_name',
-        email: 'any_email@mail.com',
-        password: 'any_password',
-        accessToken: 'any_token',
-        role: 'admin'
+        role: 'admin',
+        ...mockAccountWithTokenParams()
       })
 
       const account = await accountMongoRepository.loadByToken('any_token')

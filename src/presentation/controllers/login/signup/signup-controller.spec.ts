@@ -1,13 +1,12 @@
-import { throwError, mockAccountModel } from '@/domain/test'
+import { mockAuthentication, mockAddAccount } from '@/presentation/test'
+import { mockValidation } from '@/validation/test'
+import { throwError } from '@/domain/test'
 import { MissingParamError, ServerError, EmailInUseError } from '@/presentation/errors'
 
 import {
   AddAccount,
   Validation,
-  AddAccountParams,
-  AccountModel,
   Authentication,
-  AuthenticationParams,
   HttpRequest
 } from './signup-controller-protocols'
 
@@ -29,40 +28,11 @@ const makeFakeRequest = (): HttpRequest => ({
     passwordConfirmation: 'any_password'
   }
 })
-const makeAuthentication = (): Authentication => {
-  class AuthenticationStub implements Authentication {
-    async auth (authentication: AuthenticationParams): Promise<string> {
-      return await new Promise(resolve => resolve('any_token'))
-    }
-  }
-
-  return new AuthenticationStub()
-}
-
-const makeAddAccount = (): AddAccount => {
-  class AddAccountStub implements AddAccount {
-    async add (account: AddAccountParams): Promise<AccountModel> {
-      return await new Promise(resolve => resolve(mockAccountModel()))
-    }
-  }
-
-  return new AddAccountStub()
-}
-
-const makeValidation = (): Validation => {
-  class ValidationStub implements Validation {
-    validate (input: any): Error {
-      return null as unknown as Error
-    }
-  }
-
-  return new ValidationStub()
-}
 
 const makeSignUpController = (): SignUpControllerTypes => {
-  const authenticationStub = makeAuthentication()
-  const addAccountStub = makeAddAccount()
-  const validationStub = makeValidation()
+  const authenticationStub = mockAuthentication()
+  const addAccountStub = mockAddAccount()
+  const validationStub = mockValidation()
 
   const signUpController = new SignUpController(
     addAccountStub,
