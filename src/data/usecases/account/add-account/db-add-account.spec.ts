@@ -1,3 +1,4 @@
+import { mockHasher } from '@/data/test'
 import { mockAddAccountParams, mockAccountModel, throwError } from '@/domain/test'
 import {
   Hasher,
@@ -17,7 +18,7 @@ type DbAddAccountTypes = {
 
 const makeLoadAccountByEmailRepository = (): LoadAccountByEmailRepository => {
   class LoadAccountByEmailRepositoryStub implements LoadAccountByEmailRepository {
-    async loadByEmail (email: string): Promise<AccountModel> {
+    async loadByEmail(email: string): Promise<AccountModel> {
       return await new Promise(resolve => resolve(null as unknown as AccountModel))
     }
   }
@@ -25,19 +26,9 @@ const makeLoadAccountByEmailRepository = (): LoadAccountByEmailRepository => {
   return new LoadAccountByEmailRepositoryStub()
 }
 
-const makeHasher = (): Hasher => {
-  class HasherStub implements Hasher {
-    async hash (value: string): Promise<string> {
-      return await new Promise(resolve => resolve('hashed_password'))
-    }
-  }
-
-  return new HasherStub()
-}
-
 const makeAddAccountRepository = (): AddAccountRepository => {
   class AddAccountRepositoryStub implements AddAccountRepository {
-    async add (account: AddAccountParams): Promise<AccountModel> {
+    async add(account: AddAccountParams): Promise<AccountModel> {
       return await new Promise(resolve => resolve(mockAccountModel()))
     }
   }
@@ -47,7 +38,7 @@ const makeAddAccountRepository = (): AddAccountRepository => {
 
 const makeDbAddAccount = (): DbAddAccountTypes => {
   const addAccountRepositoryStub = makeAddAccountRepository()
-  const hasherStub = makeHasher()
+  const hasherStub = mockHasher()
   const loadAccountByEmailRepositoryStub = makeLoadAccountByEmailRepository()
 
   const dbAddAccount = new DbAddAccount(hasherStub, addAccountRepositoryStub, loadAccountByEmailRepositoryStub)

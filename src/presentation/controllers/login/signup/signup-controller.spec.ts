@@ -1,4 +1,4 @@
-import { throwError } from '@/domain/test'
+import { throwError, mockAccountModel } from '@/domain/test'
 import { MissingParamError, ServerError, EmailInUseError } from '@/presentation/errors'
 
 import {
@@ -21,13 +21,6 @@ type SignUpControllerTypes = {
   authenticationStub: Authentication
 }
 
-const makeFakeAccount = (): AccountModel => ({
-  id: 'valid_id',
-  name: 'valid_name',
-  email: 'valid_email@mail.com',
-  password: 'valid_password'
-})
-
 const makeFakeRequest = (): HttpRequest => ({
   body: {
     name: 'any_name',
@@ -49,7 +42,7 @@ const makeAuthentication = (): Authentication => {
 const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
     async add (account: AddAccountParams): Promise<AccountModel> {
-      return await new Promise(resolve => resolve(makeFakeAccount()))
+      return await new Promise(resolve => resolve(mockAccountModel()))
     }
   }
 
@@ -112,7 +105,7 @@ describe('SignUp Controller', () => {
     const { signUpController, addAccountStub } = makeSignUpController()
 
     jest.spyOn(addAccountStub, 'add').mockImplementationOnce(async () => {
-      return await new Promise((resolve, reject) => resolve(null as any))
+      return await new Promise(resolve => resolve(null as any))
     })
 
     const httpResponse = await signUpController.handle(makeFakeRequest())
