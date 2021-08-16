@@ -21,7 +21,7 @@ const makeDbAddAccount = (): DbAddAccountTypes => {
   const hasherStub = mockHasher()
   const loadAccountByEmailRepositoryStub = mockLoadAccountByEmailRepository()
 
-  jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail').mockReturnValue(new Promise(resolve => resolve(null as unknown as AccountModel)))
+  jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail').mockReturnValue(Promise.resolve(null as unknown as AccountModel))
 
   const dbAddAccount = new DbAddAccount(hasherStub, addAccountRepositoryStub, loadAccountByEmailRepositoryStub)
 
@@ -83,7 +83,7 @@ describe('DbAddAccount UseCase', () => {
     const { dbAddAccount, loadAccountByEmailRepositoryStub } = makeDbAddAccount()
 
     jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail').mockImplementationOnce(async () => {
-      return await new Promise(resolve => resolve(mockAccountModel()))
+      return await Promise.resolve(mockAccountModel())
     })
 
     const account = await dbAddAccount.add(mockAccountParams())

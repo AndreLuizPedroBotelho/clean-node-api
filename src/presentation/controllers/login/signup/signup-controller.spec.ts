@@ -75,7 +75,7 @@ describe('SignUp Controller', () => {
     const { signUpController, addAccountStub } = makeSignUpController()
 
     jest.spyOn(addAccountStub, 'add').mockImplementationOnce(async () => {
-      return await new Promise(resolve => resolve(null as any))
+      return await Promise.resolve(null as any)
     })
 
     const httpResponse = await signUpController.handle(makeFakeRequest())

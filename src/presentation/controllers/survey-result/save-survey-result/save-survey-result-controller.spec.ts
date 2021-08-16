@@ -74,7 +74,7 @@ describe('SaveSurveyResult Controller', () => {
 
     jest
       .spyOn(loadSurveyByIdStub, 'loadById')
-      .mockReturnValueOnce(new Promise(resolve => resolve(null as any)))
+      .mockReturnValueOnce(Promise.resolve(null as any))
 
     const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
 
