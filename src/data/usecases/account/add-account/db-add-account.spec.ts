@@ -1,4 +1,5 @@
 import { AccountModel } from '@/domain/models/account'
+import { mockLoadAccountByEmailRepository } from '@/data/test/mock-db-account'
 import { mockHasher, mockAddAccountRepository } from '@/data/test'
 import { mockAccountParams, mockAccountModel, throwError } from '@/domain/test'
 import {
@@ -15,19 +16,12 @@ type DbAddAccountTypes = {
   loadAccountByEmailRepositoryStub: LoadAccountByEmailRepository
 }
 
-const mockLoadAccountByEmailRepository = (): LoadAccountByEmailRepository => {
-  class LoadAccountByEmailRepositoryStub implements LoadAccountByEmailRepository {
-    async loadByEmail(email: string): Promise<AccountModel> {
-      return await new Promise(resolve => resolve(null as unknown as AccountModel))
-    }
-  }
-
-  return new LoadAccountByEmailRepositoryStub()
-}
 const makeDbAddAccount = (): DbAddAccountTypes => {
   const addAccountRepositoryStub = mockAddAccountRepository()
   const hasherStub = mockHasher()
   const loadAccountByEmailRepositoryStub = mockLoadAccountByEmailRepository()
+
+  jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail').mockReturnValue(new Promise(resolve => resolve(null as unknown as AccountModel)))
 
   const dbAddAccount = new DbAddAccount(hasherStub, addAccountRepositoryStub, loadAccountByEmailRepositoryStub)
 
