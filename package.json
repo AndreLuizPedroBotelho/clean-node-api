@@ -21,8 +21,8 @@
     "postinstall": "husky install"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "André Luiz Pedro Botelho",
+  "license": "GPL_3.0-or-later",
   "devDependencies": {
     "@shelf/jest-mongodb": "^1.2.3",
     "@types/bcrypt": "^3.0.0",

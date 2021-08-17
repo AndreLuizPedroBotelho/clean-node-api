@@ -1,5 +1,5 @@
-import { loginParamsSchema } from './schemas/login-params-schema'
-import { accountSchema } from './schemas/account-schema'
+import { badRequest, serverError, unauthorized, notFound } from './components'
+import { accountSchema, loginParamsSchema, errorSchema } from './schemas'
 import { loginPath } from './paths/login-path'
 
 export default {
@@ -8,6 +8,10 @@ export default {
     title: 'Clean Node API',
     description: 'API para realizar enquetes entre programadores',
     version: '1.0.0'
+  },
+  license: {
+    name: 'GPL_3.0-or-later',
+    url: 'https://spdx.org/licenses/GPL-3.0-or-later.html'
   },
   servers: [{
     url: '/api'
@@ -22,6 +26,13 @@ export default {
   },
   schemas: {
     account: accountSchema,
-    loginParams: loginParamsSchema
+    loginParams: loginParamsSchema,
+    error: errorSchema
+  },
+  components: {
+    badRequest,
+    serverError,
+    unauthorized,
+    notFound
   }
 }
