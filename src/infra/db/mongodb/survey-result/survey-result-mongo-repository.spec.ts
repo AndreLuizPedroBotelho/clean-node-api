@@ -21,28 +21,62 @@ const makeAccount = async (): Promise<AccountModel> => {
 const makeSurvey = async (): Promise<SurveyModel> => {
   const res = await surveyCollection.insertOne({
     question: 'any_question',
-    answers: [{
-      image: 'any_image',
-      answer: 'any_answer'
-    },
-    {
-      answer: 'other_answer'
-    }],
+    answers: [
+      {
+        image: 'any_image',
+        answer: 'any_answer_1'
+      },
+      {
+        answer: 'any_answer_2'
+      },
+      {
+        answer: 'any_answer_3'
+      }
+    ],
     date: new Date()
   })
 
   return MongoHelper.map(res.ops[0])
 }
 
-const makeSurveyResult = async (account, survey): Promise<SurveyModel> => {
-  const res = await surveyResultCollection.insertOne({
+const makeSurveyResult = async (account, survey): Promise<void> => {
+  await surveyResultCollection.insertOne({
     accountId: new ObjectId(account.id),
     surveyId: new ObjectId(survey.id),
     answer: survey.answers[0].answer,
     date: new Date()
   })
+}
 
-  return MongoHelper.map(res.ops[0])
+const makeSurveyResultMany = async (account, survey): Promise<void> => {
+  await surveyResultCollection.insertMany(
+    [
+      {
+        accountId: new ObjectId(account.id),
+        surveyId: new ObjectId(survey.id),
+        answer: survey.answers[0].answer,
+        date: new Date()
+      },
+      {
+        accountId: new ObjectId(account.id),
+        surveyId: new ObjectId(survey.id),
+        answer: survey.answers[0].answer,
+        date: new Date()
+      },
+      {
+        accountId: new ObjectId(account.id),
+        surveyId: new ObjectId(survey.id),
+        answer: survey.answers[1].answer,
+        date: new Date()
+      },
+      {
+        accountId: new ObjectId(account.id),
+        surveyId: new ObjectId(survey.id),
+        answer: survey.answers[1].answer,
+        date: new Date()
+      }
+    ]
+  )
 }
 
 const makeSurveyResultMongoRepository = (): SurveyResultMongoRepository => {
@@ -90,30 +124,53 @@ describe('Survey Result Mongo Repository', () => {
       expect(surveyResult.answers[1].count).toBe(0)
       expect(surveyResult.answers[1].percent).toBe(0)
     })
+
+    test('Should update survey result if its not new', async () => {
+      const account = await makeAccount()
+      const survey = await makeSurvey()
+
+      await makeSurveyResult(account, survey)
+
+      const surveyMongoRepository = makeSurveyResultMongoRepository()
+
+      const surveyResult = await surveyMongoRepository.save({
+        accountId: account.id,
+        surveyId: survey.id,
+        answer: survey.answers[1].answer,
+        date: new Date()
+      })
+
+      expect(surveyResult).toBeTruthy()
+
+      expect(surveyResult.surveyId).toEqual(survey.id)
+      expect(surveyResult.answers[0].answer).toBe(survey.answers[1].answer)
+      expect(surveyResult.answers[0].count).toBe(1)
+      expect(surveyResult.answers[0].percent).toBe(100)
+      expect(surveyResult.answers[1].count).toBe(0)
+      expect(surveyResult.answers[1].percent).toBe(0)
+    })
   })
 
-  test('Should update survey result if its not new', async () => {
-    const account = await makeAccount()
-    const survey = await makeSurvey()
+  describe('loadBySurveyId()', () => {
+    test('Should load survey result', async () => {
+      const account = await makeAccount()
+      const survey = await makeSurvey()
 
-    await makeSurveyResult(account, survey)
+      await makeSurveyResultMany(account, survey)
 
-    const surveyMongoRepository = makeSurveyResultMongoRepository()
+      const surveyMongoRepository = makeSurveyResultMongoRepository()
 
-    const surveyResult = await surveyMongoRepository.save({
-      accountId: account.id,
-      surveyId: survey.id,
-      answer: survey.answers[1].answer,
-      date: new Date()
+      const surveyResult = await surveyMongoRepository.loadBySurveyId(survey.id)
+
+      expect(surveyResult).toBeTruthy()
+
+      expect(surveyResult.surveyId).toEqual(survey.id)
+      expect(surveyResult.answers[0].count).toBe(2)
+      expect(surveyResult.answers[0].percent).toBe(50)
+      expect(surveyResult.answers[1].count).toBe(2)
+      expect(surveyResult.answers[1].percent).toBe(50)
+      expect(surveyResult.answers[2].count).toBe(0)
+      expect(surveyResult.answers[2].percent).toBe(0)
     })
-
-    expect(surveyResult).toBeTruthy()
-
-    expect(surveyResult.surveyId).toEqual(survey.id)
-    expect(surveyResult.answers[0].answer).toBe(survey.answers[1].answer)
-    expect(surveyResult.answers[0].count).toBe(1)
-    expect(surveyResult.answers[0].percent).toBe(100)
-    expect(surveyResult.answers[1].count).toBe(0)
-    expect(surveyResult.answers[1].percent).toBe(0)
   })
 })
