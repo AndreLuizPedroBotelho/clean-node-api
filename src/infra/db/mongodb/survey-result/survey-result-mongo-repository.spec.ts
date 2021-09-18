@@ -1,6 +1,9 @@
-import { SurveyModel } from '@/domain/models/survey'
 import { Collection, ObjectId } from 'mongodb'
+
 import { AccountModel } from '@/domain/models/account'
+import { SurveyModel } from '@/domain/models/survey'
+import { SurveyResultModel } from '@/domain/models/survey-result'
+
 import { MongoHelper } from '../helpers'
 import { SurveyResultMongoRepository } from './survey-result-mongo-repository'
 
@@ -39,7 +42,7 @@ const makeSurvey = async (): Promise<SurveyModel> => {
   return MongoHelper.map(res.ops[0])
 }
 
-const makeSurveyResult = async (account, survey): Promise<void> => {
+const makeSurveyResult = async (account: AccountModel, survey: SurveyModel): Promise<void> => {
   await surveyResultCollection.insertOne({
     accountId: new ObjectId(account.id),
     surveyId: new ObjectId(survey.id),
@@ -48,7 +51,7 @@ const makeSurveyResult = async (account, survey): Promise<void> => {
   })
 }
 
-const makeSurveyResultMany = async (account, survey): Promise<void> => {
+const makeSurveyResultMany = async (account: AccountModel, survey: SurveyModel): Promise<void> => {
   await surveyResultCollection.insertMany(
     [
       {
@@ -77,6 +80,24 @@ const makeSurveyResultMany = async (account, survey): Promise<void> => {
       }
     ]
   )
+}
+
+const findOneSurveyResult = async (account: AccountModel, survey: SurveyModel): Promise<SurveyResultModel> => {
+  const surveyResult = await surveyResultCollection.findOne({
+    accountId: new ObjectId(account.id),
+    surveyId: new ObjectId(survey.id)
+  })
+
+  return surveyResult
+}
+
+const findSurveyResult = async (account: AccountModel, survey: SurveyModel): Promise<SurveyResultModel[]> => {
+  const surveyResult = await surveyResultCollection.find({
+    accountId: new ObjectId(account.id),
+    surveyId: new ObjectId(survey.id)
+  }).toArray()
+
+  return surveyResult
 }
 
 const makeSurveyResultMongoRepository = (): SurveyResultMongoRepository => {
@@ -109,20 +130,17 @@ describe('Survey Result Mongo Repository', () => {
 
       const surveyMongoRepository = makeSurveyResultMongoRepository()
 
-      const surveyResult = await surveyMongoRepository.save({
+      await surveyMongoRepository.save({
         accountId: account.id,
         surveyId: survey.id,
         answer: survey.answers[0].answer,
         date: new Date()
       })
 
+      const surveyResult = await findOneSurveyResult(account, survey)
+
       expect(surveyResult).toBeTruthy()
       expect(surveyResult.surveyId).toEqual(survey.id)
-      expect(surveyResult.answers[0].answer).toBe(survey.answers[0].answer)
-      expect(surveyResult.answers[0].count).toBe(1)
-      expect(surveyResult.answers[0].percent).toBe(100)
-      expect(surveyResult.answers[1].count).toBe(0)
-      expect(surveyResult.answers[1].percent).toBe(0)
     })
 
     test('Should update survey result if its not new', async () => {
@@ -133,21 +151,17 @@ describe('Survey Result Mongo Repository', () => {
 
       const surveyMongoRepository = makeSurveyResultMongoRepository()
 
-      const surveyResult = await surveyMongoRepository.save({
+      await surveyMongoRepository.save({
         accountId: account.id,
         surveyId: survey.id,
         answer: survey.answers[1].answer,
         date: new Date()
       })
 
-      expect(surveyResult).toBeTruthy()
+      const surveyResult = await findSurveyResult(account, survey)
 
-      expect(surveyResult.surveyId).toEqual(survey.id)
-      expect(surveyResult.answers[0].answer).toBe(survey.answers[1].answer)
-      expect(surveyResult.answers[0].count).toBe(1)
-      expect(surveyResult.answers[0].percent).toBe(100)
-      expect(surveyResult.answers[1].count).toBe(0)
-      expect(surveyResult.answers[1].percent).toBe(0)
+      expect(surveyResult).toBeTruthy()
+      expect(surveyResult.length).toBe(1)
     })
   })
 

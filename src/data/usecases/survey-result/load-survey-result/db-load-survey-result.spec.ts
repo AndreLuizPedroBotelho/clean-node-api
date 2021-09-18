@@ -22,7 +22,7 @@ const makeDbLoadSurveyResult = (): DbLoadSurveyResultTypes => {
 }
 
 describe('DbLoadSurveyResult UseCase', () => {
-  test('Should call loadSurveyResultRepository with correct values', async () => {
+  test('Should call LoadSurveyResultRepository with correct values', async () => {
     const {
       dbLoadSurveyResult,
       loadSurveyResultRepositoryStub
@@ -35,7 +35,7 @@ describe('DbLoadSurveyResult UseCase', () => {
     expect(loadBySurveyIdSpy).toHaveBeenCalledWith('any_survey_id')
   })
 
-  test('Should throw if loadSurveyResultRepository throw', async () => {
+  test('Should throw if LoadSurveyResultRepository throw', async () => {
     const {
       dbLoadSurveyResult,
       loadSurveyResultRepositoryStub
@@ -49,7 +49,7 @@ describe('DbLoadSurveyResult UseCase', () => {
     await expect(promise).rejects.toThrow()
   })
 
-  test('Should load loadSurveyResultRepository succeeds', async () => {
+  test('Should load LoadSurveyResultRepository succeeds', async () => {
     const {
       dbLoadSurveyResult
     } = makeDbLoadSurveyResult()
