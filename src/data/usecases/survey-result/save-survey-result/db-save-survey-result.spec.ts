@@ -13,7 +13,7 @@ type DbSaveSurveyResultTypes = {
   saveSurveyResultRepositoryStub: SaveSurveyResultRepository
 }
 
-const makeDbAddSurvey = (): DbSaveSurveyResultTypes => {
+const makeDbSaveSurveyResult = (): DbSaveSurveyResultTypes => {
   const saveSurveyResultRepositoryStub = mockSaveSurveyResultRepository()
   const dbSaveSurveyResult = new DbSaveSurveyResult(saveSurveyResultRepositoryStub)
 
@@ -35,7 +35,7 @@ describe('DbSaveSurveyResult UseCase', () => {
     const {
       dbSaveSurveyResult,
       saveSurveyResultRepositoryStub
-    } = makeDbAddSurvey()
+    } = makeDbSaveSurveyResult()
 
     const surveyResult = mockSurveyResultParams()
     const saveSurveyResultRepositorySpy = jest.spyOn(saveSurveyResultRepositoryStub, 'save')
@@ -49,7 +49,7 @@ describe('DbSaveSurveyResult UseCase', () => {
     const {
       dbSaveSurveyResult,
       saveSurveyResultRepositoryStub
-    } = makeDbAddSurvey()
+    } = makeDbSaveSurveyResult()
 
     const surveyResult = mockSurveyResultParams()
 
@@ -64,7 +64,7 @@ describe('DbSaveSurveyResult UseCase', () => {
   test('Should save SurveyResult succeeds', async () => {
     const {
       dbSaveSurveyResult
-    } = makeDbAddSurvey()
+    } = makeDbSaveSurveyResult()
 
     const surveyResult = mockSurveyResultParams()
 
