@@ -1,4 +1,5 @@
-import { forbidden } from '@/presentation/helpers/http/http-helper'
+import { throwError } from '@/domain/test'
+import { forbidden, serverError } from '@/presentation/helpers/http/http-helper'
 import { mockLoadSurveyById } from '@/presentation/test/'
 
 import {
@@ -63,5 +64,20 @@ describe('LoadSurveyResult Controller', () => {
     const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
 
     expect(httpResponse).toEqual(forbidden(new InvalidParamError('surveyId')))
+  })
+
+  test('Should return 500 if LoadSurveyById throws', async () => {
+    const {
+      loadSurveyResultController,
+      loadSurveyByIdStub
+    } = makeLoadSurveysResultController()
+
+    jest.spyOn(loadSurveyByIdStub, 'loadById').mockImplementationOnce(throwError)
+
+    jest.spyOn(loadSurveyByIdStub, 'loadById').mockReturnValueOnce(Promise.resolve(null as any))
+
+    const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 })
