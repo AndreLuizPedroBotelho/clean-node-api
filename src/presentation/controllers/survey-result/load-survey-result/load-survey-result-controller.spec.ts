@@ -1,12 +1,13 @@
 import { throwError } from '@/domain/test'
 import { forbidden, serverError } from '@/presentation/helpers/http/http-helper'
-import { mockLoadSurveyById } from '@/presentation/test/'
+import { mockLoadSurveyById, mockLoadSurveyResult } from '@/presentation/test/'
 
 import {
   HttpRequest,
   SaveSurveyResultParams,
   LoadSurveyById,
-  InvalidParamError
+  InvalidParamError,
+  LoadSurveyResult
 } from './load-survey-result-controller-protocols'
 
 import { LoadSurveyResultController } from './load-survey-result-controller'
@@ -14,6 +15,7 @@ import { LoadSurveyResultController } from './load-survey-result-controller'
 type LoadSurveyResultControllerTypes = {
   loadSurveyResultController: LoadSurveyResultController
   loadSurveyByIdStub: LoadSurveyById
+  loadSurveyResultStub: LoadSurveyResult
 }
 
 const makeFakeSurveyResultData = (): Omit<SaveSurveyResultParams, 'surveyId' | 'accountId'> => ({
@@ -31,12 +33,14 @@ const makeFakeRequest = (): HttpRequest => ({
 
 const makeLoadSurveysResultController = (): LoadSurveyResultControllerTypes => {
   const loadSurveyByIdStub = mockLoadSurveyById()
+  const loadSurveyResultStub = mockLoadSurveyResult()
 
-  const loadSurveyResultController = new LoadSurveyResultController(loadSurveyByIdStub)
+  const loadSurveyResultController = new LoadSurveyResultController(loadSurveyByIdStub, loadSurveyResultStub)
 
   return {
     loadSurveyResultController,
-    loadSurveyByIdStub
+    loadSurveyByIdStub,
+    loadSurveyResultStub
   }
 }
 
@@ -79,5 +83,17 @@ describe('LoadSurveyResult Controller', () => {
     const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
 
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  test('Should call LoadSurveyResult with correct value', async () => {
+    const {
+      loadSurveyResultController,
+      loadSurveyResultStub
+    } = makeLoadSurveysResultController()
+
+    const loadSurveyByIdSpy = jest.spyOn(loadSurveyResultStub, 'load')
+    await loadSurveyResultController.handle(makeFakeRequest())
+
+    expect(loadSurveyByIdSpy).toHaveBeenCalledWith('any_survey_id')
   })
 })
