@@ -68,7 +68,7 @@ describe('Survey Routes', () => {
     await surveyResultsCollection.deleteMany({})
   })
 
-  describe('PUT /survey-result', () => {
+  describe('PUT /survey-result/:surveyId/results', () => {
     test('Should return 403 on save survey result without accessToken', async () => {
       await request(app)
         .put('/api/surveys/any_id/results')
@@ -90,6 +90,14 @@ describe('Survey Routes', () => {
           answer: 'Answer 1'
         })
         .expect(200)
+    })
+  })
+
+  describe('GET /survey-result/:surveyId/results', () => {
+    test('Should return 403 on load survey result without accessToken', async () => {
+      await request(app)
+        .get('/api/surveys/any_id/results')
+        .expect(403)
     })
   })
 })
