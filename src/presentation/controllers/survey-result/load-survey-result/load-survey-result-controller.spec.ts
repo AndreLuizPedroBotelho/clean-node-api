@@ -1,6 +1,7 @@
 import { throwError } from '@/domain/test'
-import { forbidden, serverError } from '@/presentation/helpers/http/http-helper'
+import { forbidden, ok, serverError } from '@/presentation/helpers/http/http-helper'
 import { mockLoadSurveyById, mockLoadSurveyResult } from '@/presentation/test/'
+import { mockSurveyResultModel } from '@/domain/test/'
 
 import {
   HttpRequest,
@@ -106,5 +107,15 @@ describe('LoadSurveyResult Controller', () => {
     const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
 
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  test('Should return 200 on success', async () => {
+    const {
+      loadSurveyResultController
+    } = makeLoadSurveysResultController()
+
+    const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(ok(mockSurveyResultModel()))
   })
 })
