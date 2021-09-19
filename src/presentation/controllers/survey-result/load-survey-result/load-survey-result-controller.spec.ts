@@ -1,5 +1,13 @@
+import { forbidden } from '@/presentation/helpers/http/http-helper'
 import { mockLoadSurveyById } from '@/presentation/test/'
-import { HttpRequest, SaveSurveyResultParams, LoadSurveyById } from './load-survey-result-controller-protocols'
+
+import {
+  HttpRequest,
+  SaveSurveyResultParams,
+  LoadSurveyById,
+  InvalidParamError
+} from './load-survey-result-controller-protocols'
+
 import { LoadSurveyResultController } from './load-survey-result-controller'
 
 type LoadSurveyResultControllerTypes = {
@@ -42,5 +50,18 @@ describe('LoadSurveyResult Controller', () => {
     await loadSurveyResultController.handle(makeFakeRequest())
 
     expect(loadSurveyByIdSpy).toHaveBeenCalledWith('any_survey_id')
+  })
+
+  test('Should return 403 if LoadSurveyById returns null', async () => {
+    const {
+      loadSurveyResultController,
+      loadSurveyByIdStub
+    } = makeLoadSurveysResultController()
+
+    jest.spyOn(loadSurveyByIdStub, 'loadById').mockReturnValueOnce(Promise.resolve(null as any))
+
+    const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(forbidden(new InvalidParamError('surveyId')))
   })
 })
