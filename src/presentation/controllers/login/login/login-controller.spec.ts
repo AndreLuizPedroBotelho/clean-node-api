@@ -1,6 +1,6 @@
 import { mockAuthentication } from '@/presentation/test'
 import { mockValidation } from '@/validation/test'
-import { throwError } from '@/domain/test'
+import { throwError, mockAuthenticationModel } from '@/domain/test'
 import { HttpRequest, Authentication, Validation } from './login-controller-protocols'
 import { MissingParamError } from '@/presentation/errors'
 import { badRequest, ok, serverError, unauthorized } from '@/presentation/helpers/http/http-helper'
@@ -48,7 +48,7 @@ describe('Login Controller', () => {
   test('Should return 401 if invalid credentials are provided', async () => {
     const { loginController, authenticationStub } = makeLoginController()
 
-    jest.spyOn(authenticationStub, 'auth').mockResolvedValueOnce(Promise.resolve(null as unknown as string))
+    jest.spyOn(authenticationStub, 'auth').mockResolvedValueOnce(Promise.resolve(null as any))
 
     const httpResponse = await loginController.handle(mockRequest())
     expect(httpResponse).toEqual(unauthorized())
@@ -68,7 +68,7 @@ describe('Login Controller', () => {
 
     const httpResponse = await loginController.handle(mockRequest())
 
-    expect(httpResponse).toEqual(ok({ accessToken: 'any_token' }))
+    expect(httpResponse).toEqual(ok(mockAuthenticationModel()))
   })
 
   test('Should call Validation with correct values', async () => {

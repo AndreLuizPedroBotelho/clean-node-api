@@ -1,6 +1,6 @@
 import { mockAuthentication, mockAddAccount } from '@/presentation/test'
 import { mockValidation } from '@/validation/test'
-import { throwError } from '@/domain/test'
+import { throwError, mockAuthenticationModel } from '@/domain/test'
 import { MissingParamError, ServerError, EmailInUseError } from '@/presentation/errors'
 
 import {
@@ -87,7 +87,7 @@ describe('SignUp Controller', () => {
 
     const httpResponse = await signUpController.handle(mockRequest())
 
-    expect(httpResponse).toEqual(ok({ accessToken: 'any_token' }))
+    expect(httpResponse).toEqual(ok(mockAuthenticationModel()))
   })
 
   test('Should call Validation with correct values', async () => {

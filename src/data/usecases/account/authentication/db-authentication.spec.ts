@@ -1,5 +1,5 @@
 import { mockHashComparer, mockEncrypter, mockLoadAccountByEmailRepository, mockUpdateAccessTokenRepository } from '@/data/test'
-import { throwError, mockAuthentication } from '@/domain/test'
+import { throwError, mockAuthentication, mockAccountModel } from '@/domain/test'
 
 import { DbAuthentication } from './db-authentication'
 import {
@@ -66,9 +66,9 @@ describe('DbAuthentication UseCase', () => {
 
     jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail').mockReturnValueOnce(null as unknown as Promise<AccountModel>)
 
-    const accessToken = await dbAuthentication.auth(mockAuthentication())
+    const authentication = await dbAuthentication.auth(mockAuthentication())
 
-    expect(accessToken).toBeNull()
+    expect(authentication).toBeNull()
   })
 
   test('Should call HashComparer with correct values', async () => {
@@ -96,9 +96,9 @@ describe('DbAuthentication UseCase', () => {
 
     jest.spyOn(hashComparerStub, 'compare').mockReturnValueOnce(Promise.resolve(false))
 
-    const accessToken = await dbAuthentication.auth(mockAuthentication())
+    const authentication = await dbAuthentication.auth(mockAuthentication())
 
-    expect(accessToken).toBeNull()
+    expect(authentication).toBeNull()
   })
 
   test('Should call Encrypter with correct id', async () => {
@@ -121,12 +121,13 @@ describe('DbAuthentication UseCase', () => {
     await expect(promise).rejects.toThrow()
   })
 
-  test('Should return a token on success', async () => {
+  test('Should return a AuthenticationModel on success', async () => {
     const { dbAuthentication } = makeDbAuthentication()
 
-    const accessToken = await dbAuthentication.auth(mockAuthentication())
+    const { accessToken, name } = await dbAuthentication.auth(mockAuthentication())
 
     expect(accessToken).toEqual('any_token')
+    expect(name).toEqual(mockAccountModel().name)
   })
 
   test('Should call UpdateAccessTokenRepository with correct values', async () => {
