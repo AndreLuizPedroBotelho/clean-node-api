@@ -15,7 +15,7 @@ type AuthMiddlewareTypes = {
   loadAccountByTokenStub: LoadAccountByToken
 }
 
-const makeFakeRequest = (): HttpRequest => ({
+const mockRequest = (): HttpRequest => ({
   headers: {
     'x-access-token': 'any_token'
   }
@@ -45,7 +45,7 @@ describe('Auth Middleware', () => {
     const { authMiddleware, loadAccountByTokenStub } = makeAuthMiddleware(role)
     const loadSpy = jest.spyOn(loadAccountByTokenStub, 'load')
 
-    await authMiddleware.handle(makeFakeRequest())
+    await authMiddleware.handle(mockRequest())
 
     expect(loadSpy).toHaveBeenCalledWith('any_token', role)
   })
@@ -54,7 +54,7 @@ describe('Auth Middleware', () => {
     const { authMiddleware, loadAccountByTokenStub } = makeAuthMiddleware()
     jest.spyOn(loadAccountByTokenStub, 'load').mockReturnValueOnce(Promise.resolve(null as any))
 
-    const httpResponse = await authMiddleware.handle(makeFakeRequest())
+    const httpResponse = await authMiddleware.handle(mockRequest())
 
     expect(httpResponse).toEqual(forbidden(new AccessDeniedError()))
   })
@@ -62,7 +62,7 @@ describe('Auth Middleware', () => {
   test('Should return 200 if LoadAccountByToken returns an account id', async () => {
     const { authMiddleware } = makeAuthMiddleware()
 
-    const httpResponse = await authMiddleware.handle(makeFakeRequest())
+    const httpResponse = await authMiddleware.handle(mockRequest())
 
     expect(httpResponse).toEqual(ok({ accountId: 'any_id' }))
   })
@@ -71,7 +71,7 @@ describe('Auth Middleware', () => {
     const { authMiddleware, loadAccountByTokenStub } = makeAuthMiddleware()
     jest.spyOn(loadAccountByTokenStub, 'load').mockImplementationOnce(throwError)
 
-    const httpResponse = await authMiddleware.handle(makeFakeRequest())
+    const httpResponse = await authMiddleware.handle(mockRequest())
 
     expect(httpResponse).toEqual(serverError(new Error()))
   })

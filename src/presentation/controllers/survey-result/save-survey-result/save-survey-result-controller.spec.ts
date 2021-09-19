@@ -19,16 +19,16 @@ type SaveSurveyResultControllerTypes = {
   loadSurveyByIdStub: LoadSurveyById
 }
 
-const makeFakeSurveyResultData = (): Omit<SaveSurveyResultParams, 'surveyId' | 'accountId'> => ({
+const mockSurveyResultData = (): Omit<SaveSurveyResultParams, 'surveyId' | 'accountId'> => ({
   answer: 'any_answer',
   date: new Date()
 })
 
-const makeFakeRequest = (): HttpRequest => ({
+const mockRequest = (): HttpRequest => ({
   params: {
     surveyId: 'any_survey_id'
   },
-  body: makeFakeSurveyResultData(),
+  body: mockSurveyResultData(),
   accountId: 'any_account_id'
 })
 
@@ -61,7 +61,7 @@ describe('SaveSurveyResult Controller', () => {
     } = makeSaveSurveysResultController()
 
     const loadSurveyByIdSpy = jest.spyOn(loadSurveyByIdStub, 'loadById')
-    await saveSurveyResultController.handle(makeFakeRequest())
+    await saveSurveyResultController.handle(mockRequest())
 
     expect(loadSurveyByIdSpy).toHaveBeenCalledWith('any_survey_id')
   })
@@ -76,7 +76,7 @@ describe('SaveSurveyResult Controller', () => {
       .spyOn(loadSurveyByIdStub, 'loadById')
       .mockReturnValueOnce(Promise.resolve(null as any))
 
-    const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
+    const httpResponse = await saveSurveyResultController.handle(mockRequest())
 
     expect(httpResponse).toEqual(forbidden(new InvalidParamError('surveyId')))
   })
@@ -106,7 +106,7 @@ describe('SaveSurveyResult Controller', () => {
 
     jest.spyOn(loadSurveyByIdStub, 'loadById').mockImplementationOnce(throwError)
 
-    const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
+    const httpResponse = await saveSurveyResultController.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
   })
 
@@ -117,7 +117,7 @@ describe('SaveSurveyResult Controller', () => {
     } = makeSaveSurveysResultController()
 
     const saveSpy = jest.spyOn(saveSurveyResultStub, 'save')
-    await saveSurveyResultController.handle(makeFakeRequest())
+    await saveSurveyResultController.handle(mockRequest())
 
     expect(saveSpy).toHaveBeenCalledWith(mockSurveyResultParams())
   })
@@ -130,7 +130,7 @@ describe('SaveSurveyResult Controller', () => {
 
     jest.spyOn(saveSurveyResultStub, 'save').mockImplementationOnce(throwError)
 
-    const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
+    const httpResponse = await saveSurveyResultController.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
   })
 
@@ -139,7 +139,7 @@ describe('SaveSurveyResult Controller', () => {
       saveSurveyResultController
     } = makeSaveSurveysResultController()
 
-    const httpResponse = await saveSurveyResultController.handle(makeFakeRequest())
+    const httpResponse = await saveSurveyResultController.handle(mockRequest())
     expect(httpResponse).toEqual(ok(mockSurveyResultModel()))
   })
 })

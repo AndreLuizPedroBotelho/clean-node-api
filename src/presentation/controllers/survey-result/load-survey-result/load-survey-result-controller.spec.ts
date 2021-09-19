@@ -19,16 +19,16 @@ type LoadSurveyResultControllerTypes = {
   loadSurveyResultStub: LoadSurveyResult
 }
 
-const makeFakeSurveyResultData = (): Omit<SaveSurveyResultParams, 'surveyId' | 'accountId'> => ({
+const mockSurveyResultData = (): Omit<SaveSurveyResultParams, 'surveyId' | 'accountId'> => ({
   answer: 'any_answer',
   date: new Date()
 })
 
-const makeFakeRequest = (): HttpRequest => ({
+const mockRequest = (): HttpRequest => ({
   params: {
     surveyId: 'any_survey_id'
   },
-  body: makeFakeSurveyResultData(),
+  body: mockSurveyResultData(),
   accountId: 'any_account_id'
 })
 
@@ -53,7 +53,7 @@ describe('LoadSurveyResult Controller', () => {
     } = makeLoadSurveysResultController()
 
     const loadSurveyByIdSpy = jest.spyOn(loadSurveyByIdStub, 'loadById')
-    await loadSurveyResultController.handle(makeFakeRequest())
+    await loadSurveyResultController.handle(mockRequest())
 
     expect(loadSurveyByIdSpy).toHaveBeenCalledWith('any_survey_id')
   })
@@ -66,7 +66,7 @@ describe('LoadSurveyResult Controller', () => {
 
     jest.spyOn(loadSurveyByIdStub, 'loadById').mockReturnValueOnce(Promise.resolve(null as any))
 
-    const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
+    const httpResponse = await loadSurveyResultController.handle(mockRequest())
 
     expect(httpResponse).toEqual(forbidden(new InvalidParamError('surveyId')))
   })
@@ -79,7 +79,7 @@ describe('LoadSurveyResult Controller', () => {
 
     jest.spyOn(loadSurveyByIdStub, 'loadById').mockImplementationOnce(throwError)
 
-    const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
+    const httpResponse = await loadSurveyResultController.handle(mockRequest())
 
     expect(httpResponse).toEqual(serverError(new Error()))
   })
@@ -91,7 +91,7 @@ describe('LoadSurveyResult Controller', () => {
     } = makeLoadSurveysResultController()
 
     const loadSurveyByIdSpy = jest.spyOn(loadSurveyResultStub, 'load')
-    await loadSurveyResultController.handle(makeFakeRequest())
+    await loadSurveyResultController.handle(mockRequest())
 
     expect(loadSurveyByIdSpy).toHaveBeenCalledWith('any_survey_id')
   })
@@ -104,7 +104,7 @@ describe('LoadSurveyResult Controller', () => {
 
     jest.spyOn(loadSurveyResultStub, 'load').mockImplementationOnce(throwError)
 
-    const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
+    const httpResponse = await loadSurveyResultController.handle(mockRequest())
 
     expect(httpResponse).toEqual(serverError(new Error()))
   })
@@ -114,7 +114,7 @@ describe('LoadSurveyResult Controller', () => {
       loadSurveyResultController
     } = makeLoadSurveysResultController()
 
-    const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
+    const httpResponse = await loadSurveyResultController.handle(mockRequest())
 
     expect(httpResponse).toEqual(ok(mockSurveyResultModel()))
   })

@@ -9,7 +9,7 @@ let surveyCollection: Collection
 let accountCollection: Collection
 let surveyResultsCollection: Collection
 
-const makeFakeAccountLogin = async (): Promise<string> => {
+const mockAccountLogin = async (): Promise<string> => {
   const res = await accountCollection.insertOne({
     name: 'André',
     email: 'andre@hotmail.com',
@@ -31,7 +31,7 @@ const makeFakeAccountLogin = async (): Promise<string> => {
   return accessToken
 }
 
-const makeFakeSurvey = async (): Promise<string> => {
+const mockSurvey = async (): Promise<string> => {
   const res = await surveyCollection.insertOne({
     question: 'Question',
     answers: [{
@@ -79,9 +79,9 @@ describe('Survey Routes', () => {
     })
 
     test('Should return 200 on success', async () => {
-      const accessToken = await makeFakeAccountLogin()
+      const accessToken = await mockAccountLogin()
 
-      const surveId = await makeFakeSurvey()
+      const surveId = await mockSurvey()
 
       await request(app)
         .put(`/api/surveys/${surveId}/results`)

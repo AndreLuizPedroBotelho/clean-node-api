@@ -11,7 +11,7 @@ const makeAccountMongoRepository = (): AccountMongoRepository => {
   return new AccountMongoRepository()
 }
 
-const makeFakeAccount = async (): Promise<AccountModel> => {
+const mockAccount = async (): Promise<AccountModel> => {
   const res = await accountCollection.insertOne(mockAccountParams())
 
   return MongoHelper.map(res.ops[0])
@@ -54,7 +54,7 @@ describe('Account Mongo Repository', () => {
     test('Should return an account on loadByEmail success', async () => {
       const accountMongoRepository = makeAccountMongoRepository()
 
-      await makeFakeAccount()
+      await mockAccount()
       const account = await accountMongoRepository.loadByEmail('any_email@mail.com')
 
       expect(account).toBeTruthy()
@@ -77,7 +77,7 @@ describe('Account Mongo Repository', () => {
     test('Should update the account accessToken on updateAccessToken success ', async () => {
       const accountMongoRepository = makeAccountMongoRepository()
 
-      const { id, accessToken } = await makeFakeAccount()
+      const { id, accessToken } = await mockAccount()
 
       expect(accessToken).toBeFalsy()
 

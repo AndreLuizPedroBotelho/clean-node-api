@@ -12,7 +12,7 @@ type AddSurveyControllerTypes = {
   addSurveyStub: AddSurvey
 }
 
-const makeFakeRequest = (): HttpRequest => ({
+const mockRequest = (): HttpRequest => ({
   body: {
     question: 'any_question',
     answers: [{
@@ -47,10 +47,10 @@ describe('AddSurvey Controller', () => {
 
   test('Should can validation with correct values', async () => {
     const { addSurveyController, validationStub } = makeAddSurveyController()
-    const httpRequest = makeFakeRequest()
+    const httpRequest = mockRequest()
     const validateSpy = jest.spyOn(validationStub, 'validate')
 
-    await addSurveyController.handle(makeFakeRequest())
+    await addSurveyController.handle(mockRequest())
     expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
   })
 
@@ -58,16 +58,16 @@ describe('AddSurvey Controller', () => {
     const { addSurveyController, validationStub } = makeAddSurveyController()
     jest.spyOn(validationStub, 'validate').mockReturnValueOnce(new Error())
 
-    const httpResponse = await addSurveyController.handle(makeFakeRequest())
+    const httpResponse = await addSurveyController.handle(mockRequest())
     expect(httpResponse).toEqual(badRequest(new Error()))
   })
 
   test('Should call AddSurvey with correct values', async () => {
     const { addSurveyController, addSurveyStub } = makeAddSurveyController()
-    const httpRequest = makeFakeRequest()
+    const httpRequest = mockRequest()
     const addSurveySpy = jest.spyOn(addSurveyStub, 'add')
 
-    await addSurveyController.handle(makeFakeRequest())
+    await addSurveyController.handle(mockRequest())
     expect(addSurveySpy).toHaveBeenCalledWith(httpRequest.body)
   })
 
@@ -76,14 +76,14 @@ describe('AddSurvey Controller', () => {
 
     jest.spyOn(addSurveyStub, 'add').mockImplementationOnce(throwError)
 
-    const httpResponse = await addSurveyController.handle(makeFakeRequest())
+    const httpResponse = await addSurveyController.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
   })
 
   test('Should return 204 on success', async () => {
     const { addSurveyController } = makeAddSurveyController()
 
-    const httpResponse = await addSurveyController.handle(makeFakeRequest())
+    const httpResponse = await addSurveyController.handle(mockRequest())
     expect(httpResponse).toEqual(noContent())
   })
 })

@@ -21,7 +21,7 @@ describe('Login Routes', () => {
     await accountCollection.deleteMany({})
   })
 
-  const makeFakeAccount = async (): Promise<AccountModel> => {
+  const mockAccount = async (): Promise<AccountModel> => {
     const password = await hash('123', 12)
 
     const res = await accountCollection.insertOne({
@@ -48,7 +48,7 @@ describe('Login Routes', () => {
 
   describe('POST /login', () => {
     test('Should return 200 on login', async () => {
-      await makeFakeAccount()
+      await mockAccount()
       await request(app)
         .post('/api/login')
         .send({

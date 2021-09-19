@@ -20,7 +20,7 @@ type SignUpControllerTypes = {
   authenticationStub: Authentication
 }
 
-const makeFakeRequest = (): HttpRequest => ({
+const mockRequest = (): HttpRequest => ({
   body: {
     name: 'any_name',
     email: 'any_email@mail.com',
@@ -53,7 +53,7 @@ describe('SignUp Controller', () => {
 
     const addSpy = jest.spyOn(addAccountStub, 'add')
 
-    await signUpController.handle(makeFakeRequest())
+    await signUpController.handle(mockRequest())
 
     expect(addSpy).toHaveBeenCalledWith({
       name: 'any_name',
@@ -66,7 +66,7 @@ describe('SignUp Controller', () => {
     const { signUpController, addAccountStub } = makeSignUpController()
     jest.spyOn(addAccountStub, 'add').mockImplementationOnce(throwError)
 
-    const httpResponse = await signUpController.handle(makeFakeRequest())
+    const httpResponse = await signUpController.handle(mockRequest())
 
     expect(httpResponse).toEqual(serverError(new ServerError('')))
   })
@@ -78,14 +78,14 @@ describe('SignUp Controller', () => {
       return await Promise.resolve(null as any)
     })
 
-    const httpResponse = await signUpController.handle(makeFakeRequest())
+    const httpResponse = await signUpController.handle(mockRequest())
     expect(httpResponse).toEqual(forbidden(new EmailInUseError()))
   })
 
   test('Should return 200 if valid data is provided', async () => {
     const { signUpController } = makeSignUpController()
 
-    const httpResponse = await signUpController.handle(makeFakeRequest())
+    const httpResponse = await signUpController.handle(mockRequest())
 
     expect(httpResponse).toEqual(ok({ accessToken: 'any_token' }))
   })
@@ -95,7 +95,7 @@ describe('SignUp Controller', () => {
 
     const validateSpy = jest.spyOn(validationStub, 'validate')
 
-    const httpRequest = makeFakeRequest()
+    const httpRequest = mockRequest()
     await signUpController.handle(httpRequest)
 
     expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
@@ -105,7 +105,7 @@ describe('SignUp Controller', () => {
     const { signUpController, validationStub } = makeSignUpController()
     jest.spyOn(validationStub, 'validate').mockReturnValueOnce(new MissingParamError('any_field'))
 
-    const httpResponse = await signUpController.handle(makeFakeRequest())
+    const httpResponse = await signUpController.handle(mockRequest())
 
     expect(httpResponse).toEqual(badRequest(new MissingParamError('any_field')))
   })
@@ -115,7 +115,7 @@ describe('SignUp Controller', () => {
 
     const authSpy = jest.spyOn(authenticationStub, 'auth')
 
-    await signUpController.handle(makeFakeRequest())
+    await signUpController.handle(mockRequest())
     expect(authSpy).toHaveBeenCalledWith({
       email: 'any_email@mail.com',
       password: 'any_password'
@@ -127,7 +127,7 @@ describe('SignUp Controller', () => {
 
     jest.spyOn(authenticationStub, 'auth').mockImplementationOnce(throwError)
 
-    const httpResponse = await signUpController.handle(makeFakeRequest())
+    const httpResponse = await signUpController.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
   })
 })
