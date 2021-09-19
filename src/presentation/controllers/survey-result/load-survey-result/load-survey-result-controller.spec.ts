@@ -78,8 +78,6 @@ describe('LoadSurveyResult Controller', () => {
 
     jest.spyOn(loadSurveyByIdStub, 'loadById').mockImplementationOnce(throwError)
 
-    jest.spyOn(loadSurveyByIdStub, 'loadById').mockReturnValueOnce(Promise.resolve(null as any))
-
     const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
 
     expect(httpResponse).toEqual(serverError(new Error()))
@@ -95,5 +93,18 @@ describe('LoadSurveyResult Controller', () => {
     await loadSurveyResultController.handle(makeFakeRequest())
 
     expect(loadSurveyByIdSpy).toHaveBeenCalledWith('any_survey_id')
+  })
+
+  test('Should return 500 if LoadSurveyResult throws', async () => {
+    const {
+      loadSurveyResultController,
+      loadSurveyResultStub
+    } = makeLoadSurveysResultController()
+
+    jest.spyOn(loadSurveyResultStub, 'load').mockImplementationOnce(throwError)
+
+    const httpResponse = await loadSurveyResultController.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 })
