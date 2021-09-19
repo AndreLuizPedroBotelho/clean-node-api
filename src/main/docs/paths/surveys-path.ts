@@ -5,6 +5,7 @@ export const surveyPath = {
     }],
     tags: ['Enquete'],
     summary: 'Api para listar todas as enquete',
+    description: 'Essa rota só pode ser executada por **usuários autenticados**',
     responses: {
       200: {
         description: 'Sucesso',
@@ -33,6 +34,7 @@ export const surveyPath = {
     }],
     tags: ['Enquete'],
     summary: 'Api para criar uma enquete',
+    description: 'Essa rota só pode ser executada por **usuários autenticados**',
     requestBody: {
       content: {
         'application/json': {
