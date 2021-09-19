@@ -78,7 +78,7 @@ describe('Survey Routes', () => {
         .expect(403)
     })
 
-    test('Should return 200 on success', async () => {
+    test('Should return 200 on save survey result with accessToken', async () => {
       const accessToken = await mockAccountLogin()
 
       const surveId = await mockSurvey()
@@ -98,6 +98,17 @@ describe('Survey Routes', () => {
       await request(app)
         .get('/api/surveys/any_id/results')
         .expect(403)
+    })
+
+    test('Should return 200 on load survey result with accessToken', async () => {
+      const accessToken = await mockAccountLogin()
+
+      const surveId = await mockSurvey()
+
+      await request(app)
+        .get(`/api/surveys/${surveId}/results`)
+        .set('x-access-token', accessToken)
+        .expect(200)
     })
   })
 })
