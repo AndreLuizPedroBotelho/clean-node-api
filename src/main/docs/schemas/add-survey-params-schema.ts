@@ -11,5 +11,5 @@ export const addSurveyParamsSchema = {
       }
     }
   },
-  required: ['question']
+  required: ['question', 'answers']
 }
