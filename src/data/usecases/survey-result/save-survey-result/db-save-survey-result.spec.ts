@@ -61,7 +61,7 @@ describe('DbSaveSurveyResult UseCase', () => {
 
     await dbSaveSurveyResult.save(surveyResult)
 
-    expect(loadSurveyResultRepositorySpy).toHaveBeenCalledWith(surveyResult.surveyId)
+    expect(loadSurveyResultRepositorySpy).toHaveBeenCalledWith(surveyResult.surveyId, surveyResult.accountId)
   })
 
   test('Should throw if SaveSurveyResultRepository throw', async () => {

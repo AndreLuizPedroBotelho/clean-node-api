@@ -27,9 +27,13 @@ const makeDbLoadSurveyResult = (): DbLoadSurveyResultTypes => {
   }
 }
 
+let surveyId: string
+let accountId: string
 describe('DbLoadSurveyResult UseCase', () => {
   beforeAll(() => {
     MockDate.set(new Date())
+    surveyId = 'any_survey_id'
+    accountId = 'any_account_id'
   })
 
   afterAll(() => {
@@ -44,9 +48,9 @@ describe('DbLoadSurveyResult UseCase', () => {
 
     const loadBySurveyIdSpy = jest.spyOn(loadSurveyResultRepositoryStub, 'loadBySurveyId')
 
-    await dbLoadSurveyResult.load('any_survey_id')
+    await dbLoadSurveyResult.load(surveyId, accountId)
 
-    expect(loadBySurveyIdSpy).toHaveBeenCalledWith('any_survey_id')
+    expect(loadBySurveyIdSpy).toHaveBeenCalledWith(surveyId, accountId)
   })
 
   test('Should throw if LoadSurveyResultRepository throw', async () => {
@@ -58,7 +62,7 @@ describe('DbLoadSurveyResult UseCase', () => {
     jest.spyOn(loadSurveyResultRepositoryStub, 'loadBySurveyId')
       .mockImplementationOnce(throwError)
 
-    const promise = dbLoadSurveyResult.load('any_survey_id')
+    const promise = dbLoadSurveyResult.load(surveyId, accountId)
 
     await expect(promise).rejects.toThrow()
   })
@@ -75,9 +79,9 @@ describe('DbLoadSurveyResult UseCase', () => {
     jest.spyOn(loadSurveyResultRepositoryStub, 'loadBySurveyId')
       .mockReturnValueOnce(Promise.resolve(null as any))
 
-    await dbLoadSurveyResult.load('any_survey_id')
+    await dbLoadSurveyResult.load(surveyId, accountId)
 
-    expect(loadByIdSpy).toHaveBeenCalledWith('any_survey_id')
+    expect(loadByIdSpy).toHaveBeenCalledWith(surveyId)
   })
 
   test('Should return surveyResultModel with all answers with 0 if LoadSurveyResultRepository returns null', async () => {
@@ -89,7 +93,7 @@ describe('DbLoadSurveyResult UseCase', () => {
     jest.spyOn(loadSurveyResultRepositoryStub, 'loadBySurveyId')
       .mockReturnValueOnce(Promise.resolve(null as any))
 
-    const saveResult = await dbLoadSurveyResult.load('any_survey_id')
+    const saveResult = await dbLoadSurveyResult.load(surveyId, accountId)
 
     expect(saveResult).toEqual(mockSurveyResultEmptyAnswer())
   })
@@ -99,7 +103,7 @@ describe('DbLoadSurveyResult UseCase', () => {
       dbLoadSurveyResult
     } = makeDbLoadSurveyResult()
 
-    const saveResult = await dbLoadSurveyResult.load('any_survey_id')
+    const saveResult = await dbLoadSurveyResult.load(surveyId, accountId)
 
     expect(saveResult).toEqual(mockSurveyResultModel())
   })

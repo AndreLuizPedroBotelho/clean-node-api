@@ -48,34 +48,18 @@ const mockSurveyResult = async (account: AccountModel, survey: SurveyModel): Pro
   })
 }
 
-const mockSurveyResultMany = async (account: AccountModel, survey: SurveyModel): Promise<void> => {
+type AccountModelWithChoice = AccountModel & { answerChoice: number }
+
+const mockSurveyResultMany = async (account: AccountModelWithChoice[], survey: SurveyModel): Promise<void> => {
+  const surveyResults = account.map(account => ({
+    accountId: new ObjectId(account.id),
+    surveyId: new ObjectId(survey.id),
+    answer: survey.answers[account.answerChoice].answer,
+    date: new Date()
+  }))
+
   await surveyResultCollection.insertMany(
-    [
-      {
-        accountId: new ObjectId(account.id),
-        surveyId: new ObjectId(survey.id),
-        answer: survey.answers[0].answer,
-        date: new Date()
-      },
-      {
-        accountId: new ObjectId(account.id),
-        surveyId: new ObjectId(survey.id),
-        answer: survey.answers[0].answer,
-        date: new Date()
-      },
-      {
-        accountId: new ObjectId(account.id),
-        surveyId: new ObjectId(survey.id),
-        answer: survey.answers[1].answer,
-        date: new Date()
-      },
-      {
-        accountId: new ObjectId(account.id),
-        surveyId: new ObjectId(survey.id),
-        answer: survey.answers[1].answer,
-        date: new Date()
-      }
-    ]
+    surveyResults
   )
 }
 
@@ -165,30 +149,102 @@ describe('Survey Result Mongo Repository', () => {
   describe('loadBySurveyId()', () => {
     test('Should load survey result', async () => {
       const account = await mockAccount()
+      const account2 = await mockAccount()
+
       const survey = await mockSurvey()
 
-      await mockSurveyResultMany(account, survey)
+      await mockSurveyResultMany(
+        [
+          { ...account, answerChoice: 0 },
+          { ...account2, answerChoice: 0 }
+        ],
+        survey
+      )
 
       const surveyMongoRepository = makeSurveyResultMongoRepository()
 
-      const surveyResult = await surveyMongoRepository.loadBySurveyId(survey.id)
+      const surveyResult = await surveyMongoRepository.loadBySurveyId(survey.id, account.id)
 
       expect(surveyResult).toBeTruthy()
 
       expect(surveyResult.surveyId).toEqual(survey.id)
       expect(surveyResult.answers[0].count).toBe(2)
+      expect(surveyResult.answers[0].percent).toBe(100)
+      expect(surveyResult.answers[0].isCurrentAccountAnswer).toBe(true)
+
+      expect(surveyResult.answers[1].count).toBe(0)
+      expect(surveyResult.answers[1].percent).toBe(0)
+      expect(surveyResult.answers[1].isCurrentAccountAnswer).toBe(false)
+    })
+
+    test('Should load survey result 2', async () => {
+      const account = await mockAccount()
+      const account2 = await mockAccount()
+      const account3 = await mockAccount()
+
+      const survey = await mockSurvey()
+
+      await mockSurveyResultMany(
+        [
+          { ...account, answerChoice: 0 },
+          { ...account2, answerChoice: 1 },
+          { ...account3, answerChoice: 1 }
+        ],
+        survey
+      )
+      const surveyMongoRepository = makeSurveyResultMongoRepository()
+
+      const surveyResult = await surveyMongoRepository.loadBySurveyId(survey.id, account2.id)
+
+      expect(surveyResult).toBeTruthy()
+
+      expect(surveyResult.surveyId).toEqual(survey.id)
+      expect(surveyResult.answers[0].count).toBe(2)
+      expect(surveyResult.answers[0].percent).toBe(67)
+      expect(surveyResult.answers[0].isCurrentAccountAnswer).toBe(true)
+
+      expect(surveyResult.answers[1].count).toBe(1)
+      expect(surveyResult.answers[1].percent).toBe(33)
+      expect(surveyResult.answers[1].isCurrentAccountAnswer).toBe(false)
+    })
+
+    test('Should load survey result 3', async () => {
+      const account = await mockAccount()
+      const account2 = await mockAccount()
+      const account3 = await mockAccount()
+
+      const survey = await mockSurvey()
+
+      await mockSurveyResultMany(
+        [
+          { ...account, answerChoice: 0 },
+          { ...account2, answerChoice: 1 }
+        ],
+        survey
+      )
+      const surveyMongoRepository = makeSurveyResultMongoRepository()
+
+      const surveyResult = await surveyMongoRepository.loadBySurveyId(survey.id, account3.id)
+
+      expect(surveyResult).toBeTruthy()
+
+      expect(surveyResult.surveyId).toEqual(survey.id)
+      expect(surveyResult.answers[0].count).toBe(1)
       expect(surveyResult.answers[0].percent).toBe(50)
-      expect(surveyResult.answers[1].count).toBe(2)
+      expect(surveyResult.answers[0].isCurrentAccountAnswer).toBe(false)
+
+      expect(surveyResult.answers[1].count).toBe(1)
       expect(surveyResult.answers[1].percent).toBe(50)
-      expect(surveyResult.answers[2].count).toBe(0)
-      expect(surveyResult.answers[2].percent).toBe(0)
+      expect(surveyResult.answers[1].isCurrentAccountAnswer).toBe(false)
     })
 
     test('Should return null if there is no survey result', async () => {
       const survey = await mockSurvey()
+      const account = await mockAccount()
+
       const surveyMongoRepository = makeSurveyResultMongoRepository()
 
-      const surveyResult = await surveyMongoRepository.loadBySurveyId(survey.id)
+      const surveyResult = await surveyMongoRepository.loadBySurveyId(survey.id, account.id)
 
       expect(surveyResult).toBeNull()
     })
