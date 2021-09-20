@@ -4,8 +4,10 @@ import { mockLoadSurveys } from '@/presentation/test'
 import { ok, noContent, serverError } from '@/presentation/helpers/http/http-helper'
 
 import { LoadSurveysController } from './load-surveys-controller'
-import { LoadSurveys } from './load-surveys-controller-protocols'
+import { LoadSurveys, HttpRequest } from './load-surveys-controller-protocols'
 import MockDate from 'mockdate'
+
+const mockRequest = (): HttpRequest => ({ accountId: 'any_account_id' })
 
 type LoadSurveyControllerTypes = {
   loadSurveysController: LoadSurveysController
@@ -31,19 +33,21 @@ describe('LoadSurveys Controller', () => {
     MockDate.reset()
   })
 
-  test('Should call LoadSurveys', async () => {
+  test('Should call LoadSurveys with correct values', async () => {
     const { loadSurveysController, loadSurveysStub } = makeLoadSurveysController()
 
-    const loadSpy = jest.spyOn(loadSurveysStub, 'load')
-    await loadSurveysController.handle({})
+    const httpRequest = mockRequest()
 
-    expect(loadSpy).toHaveBeenCalled()
+    const loadSpy = jest.spyOn(loadSurveysStub, 'load')
+    await loadSurveysController.handle(httpRequest)
+
+    expect(loadSpy).toHaveBeenCalledWith(httpRequest.accountId)
   })
 
   test('Should return 200 on success', async () => {
     const { loadSurveysController } = makeLoadSurveysController()
 
-    const httpResponse = await loadSurveysController.handle({})
+    const httpResponse = await loadSurveysController.handle(mockRequest())
 
     expect(httpResponse).toEqual(ok(mockSurveyModels()))
   })
@@ -53,7 +57,7 @@ describe('LoadSurveys Controller', () => {
 
     jest.spyOn(loadSurveysStub, 'load').mockReturnValueOnce(Promise.resolve([]))
 
-    const httpResponse = await loadSurveysController.handle({})
+    const httpResponse = await loadSurveysController.handle(mockRequest())
 
     expect(httpResponse).toEqual(noContent())
   })
@@ -63,7 +67,7 @@ describe('LoadSurveys Controller', () => {
 
     jest.spyOn(loadSurveysStub, 'load').mockImplementationOnce(throwError)
 
-    const httpResponse = await loadSurveysController.handle({})
+    const httpResponse = await loadSurveysController.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
   })
 })

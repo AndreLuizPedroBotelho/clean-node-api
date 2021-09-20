@@ -9,6 +9,8 @@ type DbAddSurveyTypes = {
   loadSurveysRepositoryStub: LoadSurveysRepository
 }
 
+const accountId = 'any_account_id'
+
 const makeDbAddSurvey = (): DbAddSurveyTypes => {
   const loadSurveysRepositoryStub = mockLoadSurveysRepository()
   const dbLoadSurveys = new DbLoadSurveys(loadSurveysRepositoryStub)
@@ -35,9 +37,9 @@ describe('DbLoadSurveys UseCase', () => {
 
     const loadSpy = jest.spyOn(loadSurveysRepositoryStub, 'loadAll')
 
-    await dbLoadSurveys.load()
+    await dbLoadSurveys.load(accountId)
 
-    expect(loadSpy).toHaveBeenCalled()
+    expect(loadSpy).toHaveBeenCalledWith(accountId)
   })
 
   test('Should return a list of surveys on success', async () => {
@@ -45,7 +47,7 @@ describe('DbLoadSurveys UseCase', () => {
       dbLoadSurveys
     } = makeDbAddSurvey()
 
-    const surveys = await dbLoadSurveys.load()
+    const surveys = await dbLoadSurveys.load(accountId)
     expect(surveys).toEqual(mockSurveyModels())
   })
 
@@ -58,7 +60,7 @@ describe('DbLoadSurveys UseCase', () => {
     jest.spyOn(loadSurveysRepositoryStub, 'loadAll')
       .mockImplementationOnce(throwError)
 
-    const promise = dbLoadSurveys.load()
+    const promise = dbLoadSurveys.load(accountId)
 
     await expect(promise).rejects.toThrow()
   })
