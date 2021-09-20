@@ -1,14 +1,20 @@
 import { AccountModel, LoadAccountByToken, Decrypter, LoadAccountByTokenRepository } from './db-load-account-by-token-protocols'
 
 export class DbLoadAccountByToken implements LoadAccountByToken {
-  constructor (
+  constructor(
     private readonly decrypter: Decrypter,
     private readonly loadAccountByTokenRepository: LoadAccountByTokenRepository
 
-  ) {}
+  ) { }
 
-  async load (accessToken: string, role?: string): Promise<AccountModel> {
-    const token = await this.decrypter.decrypt(accessToken)
+  async load(accessToken: string, role?: string): Promise<AccountModel> {
+    let token: string
+
+    try {
+      token = await this.decrypter.decrypt(accessToken)
+    } catch (error) {
+      return null as any
+    }
 
     if (token) {
       const account = await this.loadAccountByTokenRepository.loadByToken(accessToken, role)
@@ -17,6 +23,6 @@ export class DbLoadAccountByToken implements LoadAccountByToken {
       }
     }
 
-    return null as unknown as AccountModel
+    return null as any
   }
 }

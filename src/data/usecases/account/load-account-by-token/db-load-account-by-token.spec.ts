@@ -2,6 +2,7 @@ import { mockDecrypter, mockLoadAccountByTokenRepository } from '@/data/test'
 import { throwError, mockAccountModel } from '@/domain/test'
 import { Decrypter, LoadAccountByTokenRepository } from './db-load-account-by-token-protocols'
 import { DbLoadAccountByToken } from './db-load-account-by-token'
+import faker from 'faker'
 
 type DbLoadAccountByTokenTypes = {
   dbLoadAccountByToken: DbLoadAccountByToken
@@ -22,15 +23,22 @@ const makeDbLoadAccountByToken = (): DbLoadAccountByTokenTypes => {
   }
 }
 
+let token: string
+let role: string
 describe('DbLoadAccountByToken UseCase', () => {
+  beforeEach(() => {
+    token = faker.datatype.uuid()
+    role = faker.random.word()
+  })
+
   test('Should call Decrypter with correct values', async () => {
     const { dbLoadAccountByToken, decrypterStub } = makeDbLoadAccountByToken()
 
     const decryptSpy = jest.spyOn(decrypterStub, 'decrypt')
 
-    await dbLoadAccountByToken.load('any_token', 'any_role')
+    await dbLoadAccountByToken.load(token, role)
 
-    expect(decryptSpy).toHaveBeenCalledWith('any_token')
+    expect(decryptSpy).toHaveBeenCalledWith(token)
   })
 
   test('Should return null if Decrypter returns null', async () => {
@@ -38,7 +46,7 @@ describe('DbLoadAccountByToken UseCase', () => {
 
     jest.spyOn(decrypterStub, 'decrypt').mockReturnValueOnce(Promise.resolve(null as any))
 
-    const account = await dbLoadAccountByToken.load('any_token', 'any_role')
+    const account = await dbLoadAccountByToken.load(token, role)
 
     expect(account).toBeNull()
   })
@@ -48,9 +56,9 @@ describe('DbLoadAccountByToken UseCase', () => {
 
     const loadByTokenSpy = jest.spyOn(loadAccountByTokenRepository, 'loadByToken')
 
-    await dbLoadAccountByToken.load('any_token', 'any_role')
+    await dbLoadAccountByToken.load(token, role)
 
-    expect(loadByTokenSpy).toHaveBeenCalledWith('any_token', 'any_role')
+    expect(loadByTokenSpy).toHaveBeenCalledWith(token, role)
   })
 
   test('Should return null if LoadAccountByTokenRepository returns null', async () => {
@@ -58,7 +66,7 @@ describe('DbLoadAccountByToken UseCase', () => {
 
     jest.spyOn(loadAccountByTokenRepository, 'loadByToken').mockReturnValueOnce(Promise.resolve(null as any))
 
-    const account = await dbLoadAccountByToken.load('any_token', 'any_role')
+    const account = await dbLoadAccountByToken.load(token, role)
 
     expect(account).toBeNull()
   })
@@ -66,7 +74,7 @@ describe('DbLoadAccountByToken UseCase', () => {
   test('Should return an account on success', async () => {
     const { dbLoadAccountByToken } = makeDbLoadAccountByToken()
 
-    const account = await dbLoadAccountByToken.load('any_token', 'any_role')
+    const account = await dbLoadAccountByToken.load(token, role)
 
     expect(account).toEqual(mockAccountModel())
   })
@@ -76,9 +84,9 @@ describe('DbLoadAccountByToken UseCase', () => {
 
     jest.spyOn(decrypterStub, 'decrypt').mockImplementationOnce(throwError)
 
-    const promise = dbLoadAccountByToken.load('any_token', 'any_role')
+    const account = await dbLoadAccountByToken.load(token, role)
 
-    await expect(promise).rejects.toThrow()
+    expect(account).toBeNull()
   })
 
   test('Should throw if LoadAccountByTokenRepository throws', async () => {
@@ -86,7 +94,7 @@ describe('DbLoadAccountByToken UseCase', () => {
 
     jest.spyOn(loadAccountByTokenRepository, 'loadByToken').mockImplementationOnce(throwError)
 
-    const promise = dbLoadAccountByToken.load('any_token', 'any_role')
+    const promise = dbLoadAccountByToken.load(token, role)
 
     await expect(promise).rejects.toThrow()
   })
