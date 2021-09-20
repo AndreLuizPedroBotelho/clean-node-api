@@ -5,3 +5,4 @@ globalConfig.json
 data
 !src/data
 .vscode
+!tests/data
