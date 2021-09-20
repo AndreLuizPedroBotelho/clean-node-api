@@ -1,8 +1,10 @@
 {
   "name": "clean-node-api",
-  "version": "2.5.4",
-  "description": "",
+  "version": "2.5.5",
+  "description": "NodeJs Rest Api using TDD,Clean Architecture and Typescript",
   "main": "index.js",
+  "author": "André Luiz Pedro Botelho",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "start": "node dist/main/server.js",
     "watch": "npx tsc -w",
