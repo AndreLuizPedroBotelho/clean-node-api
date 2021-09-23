@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { Router } from 'express'
-import { adapterRoute } from '@/main/adapter'
+import { adapterRoute } from '@/main/adapters'
 import { makeSignUpController } from '@/main/factories/controllers'
 import { makeLoginController } from '@/main/factories/controllers'
 

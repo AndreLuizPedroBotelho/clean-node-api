@@ -1,5 +1,5 @@
 import { mockValidation } from '@/tests/validation/mocks'
-import { HttpRequest, Validation } from '@/presentation/protocols'
+import { Validation } from '@/presentation/protocols'
 import { Authentication } from '@/domain/usecases'
 import { LoginController } from '@/presentation/controllers'
 import { mockAuthentication } from '@/tests/presentation/mocks'
@@ -13,11 +13,9 @@ type LoginControllerTypes = {
   validationStub: Validation
 }
 
-const mockRequest = (): HttpRequest => ({
-  body: {
-    email: 'any_email@mail.com',
-    password: 'any_password'
-  }
+const mockRequest = (): LoginController.Request => ({
+  email: 'any_email@mail.com',
+  password: 'any_password'
 })
 
 const makeLoginController = (): LoginControllerTypes => {
@@ -40,10 +38,7 @@ describe('Login Controller', () => {
     const authSpy = jest.spyOn(authenticationStub, 'auth')
 
     await loginController.handle(mockRequest())
-    expect(authSpy).toHaveBeenCalledWith({
-      email: 'any_email@mail.com',
-      password: 'any_password'
-    })
+    expect(authSpy).toHaveBeenCalledWith(mockRequest())
   })
 
   test('Should return 401 if invalid credentials are provided', async () => {
@@ -77,10 +72,10 @@ describe('Login Controller', () => {
 
     const validateSpy = jest.spyOn(validationStub, 'validate')
 
-    const httpRequest = mockRequest()
-    await loginController.handle(httpRequest)
+    const request = mockRequest()
+    await loginController.handle(request)
 
-    expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
+    expect(validateSpy).toHaveBeenCalledWith(request)
   })
 
   test('Should return 400 if Validation returns an error', async () => {

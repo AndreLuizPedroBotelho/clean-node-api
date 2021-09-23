@@ -1,4 +1,4 @@
-import { Validation, HttpRequest } from '@/presentation/protocols'
+import { Validation } from '@/presentation/protocols'
 import { AddAccount, Authentication } from '@/domain/usecases'
 import { SignUpController } from '@/presentation/controllers'
 import { mockAuthentication, mockAddAccount } from '@/tests/presentation/mocks'
@@ -15,13 +15,11 @@ type SignUpControllerTypes = {
   authenticationStub: Authentication
 }
 
-const mockRequest = (): HttpRequest => ({
-  body: {
-    name: 'any_name',
-    email: 'any_email@mail.com',
-    password: 'any_password',
-    passwordConfirmation: 'any_password'
-  }
+const mockRequest = (): SignUpController.Request => ({
+  name: 'any_name',
+  email: 'any_email@mail.com',
+  password: 'any_password',
+  passwordConfirmation: 'any_password'
 })
 
 const makeSignUpController = (): SignUpControllerTypes => {
@@ -50,11 +48,9 @@ describe('SignUp Controller', () => {
 
     await signUpController.handle(mockRequest())
 
-    expect(addSpy).toHaveBeenCalledWith({
-      name: 'any_name',
-      email: 'any_email@mail.com',
-      password: 'any_password'
-    })
+    const { name, email, password } = mockRequest()
+
+    expect(addSpy).toHaveBeenCalledWith({ name, email, password })
   })
 
   test('Should return 500 if AddAccount throws', async () => {
@@ -90,10 +86,10 @@ describe('SignUp Controller', () => {
 
     const validateSpy = jest.spyOn(validationStub, 'validate')
 
-    const httpRequest = mockRequest()
-    await signUpController.handle(httpRequest)
+    const request = mockRequest()
+    await signUpController.handle(request)
 
-    expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
+    expect(validateSpy).toHaveBeenCalledWith(request)
   })
 
   test('Should return 400 if Validation returns an error', async () => {
@@ -111,9 +107,12 @@ describe('SignUp Controller', () => {
     const authSpy = jest.spyOn(authenticationStub, 'auth')
 
     await signUpController.handle(mockRequest())
+
+    const { email, password } = mockRequest()
+
     expect(authSpy).toHaveBeenCalledWith({
-      email: 'any_email@mail.com',
-      password: 'any_password'
+      email,
+      password
     })
   })
 

@@ -1,4 +1,4 @@
-import { Controller, HttpResponse, HttpRequest } from '@/presentation/protocols'
+import { Controller, HttpResponse } from '@/presentation/protocols'
 import { forbidden, serverError, ok } from '@/presentation/helpers'
 import { InvalidParamError } from '@/presentation/errors'
 import { LoadSurveyById, LoadSurveyResult } from '@/domain/usecases'
@@ -9,10 +9,9 @@ export class LoadSurveyResultController implements Controller {
     private readonly loadSurveyResult: LoadSurveyResult
   ) { }
 
-  async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
+  async handle(request: LoadSurveyResultController.Request): Promise<HttpResponse> {
     try {
-      const { accountId, params } = httpRequest
-      const { surveyId } = params
+      const { accountId, surveyId } = request
 
       const survey = await this.loadSurveyById.loadById(surveyId)
 
@@ -26,5 +25,12 @@ export class LoadSurveyResultController implements Controller {
     } catch (error) {
       return serverError(error)
     }
+  }
+}
+
+export namespace LoadSurveyResultController {
+  export type Request = {
+    surveyId: string
+    accountId: string
   }
 }

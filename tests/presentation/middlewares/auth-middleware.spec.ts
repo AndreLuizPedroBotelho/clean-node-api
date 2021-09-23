@@ -1,5 +1,4 @@
 import { forbidden, ok, serverError } from '@/presentation/helpers'
-import { HttpRequest } from '@/presentation/protocols'
 import { LoadAccountByToken } from '@/domain/usecases'
 import { AuthMiddleware } from '@/presentation/middlewares'
 import { throwError } from '@/tests/domain/mocks'
@@ -12,10 +11,8 @@ type AuthMiddlewareTypes = {
   loadAccountByTokenStub: LoadAccountByToken
 }
 
-const mockRequest = (): HttpRequest => ({
-  headers: {
-    'x-access-token': 'any_token'
-  }
+const mockRequest = (): AuthMiddleware.Request => ({
+  accessToken: 'any_token'
 })
 
 const makeAuthMiddleware = (role?: string): AuthMiddlewareTypes => {

@@ -1,5 +1,4 @@
 import { LoadSurveys } from '@/domain/usecases'
-import { HttpRequest } from '@/presentation/protocols'
 import { LoadSurveysController } from '@/presentation/controllers'
 import { mockSurveyModels, throwError } from '@/tests/domain/mocks'
 import { mockLoadSurveys } from '@/tests/presentation/mocks'
@@ -8,7 +7,7 @@ import { ok, noContent, serverError } from '@/presentation/helpers'
 
 import MockDate from 'mockdate'
 
-const mockRequest = (): HttpRequest => ({ accountId: 'any_account_id' })
+const mockRequest = (): LoadSurveysController.Request => ({ accountId: 'any_account_id' })
 
 type LoadSurveyControllerTypes = {
   loadSurveysController: LoadSurveysController
@@ -37,12 +36,12 @@ describe('LoadSurveys Controller', () => {
   test('Should call LoadSurveys with correct values', async () => {
     const { loadSurveysController, loadSurveysStub } = makeLoadSurveysController()
 
-    const httpRequest = mockRequest()
+    const request = mockRequest()
 
     const loadSpy = jest.spyOn(loadSurveysStub, 'load')
-    await loadSurveysController.handle(httpRequest)
+    await loadSurveysController.handle(request)
 
-    expect(loadSpy).toHaveBeenCalledWith(httpRequest.accountId)
+    expect(loadSpy).toHaveBeenCalledWith(request.accountId)
   })
 
   test('Should return 200 on success', async () => {

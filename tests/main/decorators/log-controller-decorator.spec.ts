@@ -2,7 +2,7 @@ import { LogControllerDecorator } from '@/main/decorators'
 import { mockAccountModel } from '@/tests/domain/mocks'
 import { LogErrorRepository } from '@/data/protocols'
 import { ok, serverError } from '@/presentation/helpers'
-import { HttpRequest, HttpResponse, Controller } from '@/presentation/protocols'
+import { HttpResponse, Controller } from '@/presentation/protocols'
 import { mockLogErrorRepository } from '@/tests/data/mocks'
 
 type LogControllerDecoratorTypes = {
@@ -11,13 +11,11 @@ type LogControllerDecoratorTypes = {
   logErrorRepositoryStub: LogErrorRepository
 }
 
-const mockRequest = (): HttpRequest => ({
-  body: {
-    name: 'any_name',
-    email: 'any_email@mail.com',
-    password: 'any_password',
-    passwordConfirmation: 'any_password'
-  }
+const mockRequest = (): any => ({
+  name: 'any_name',
+  email: 'any_email@mail.com',
+  password: 'any_password',
+  passwordConfirmation: 'any_password'
 })
 
 const mockServerError = (): HttpResponse => {
@@ -29,7 +27,7 @@ const mockServerError = (): HttpResponse => {
 
 const makeController = (): Controller => {
   class ControllerStub implements Controller {
-    async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
+    async handle(request: any): Promise<HttpResponse> {
       return await Promise.resolve(ok(mockAccountModel()))
     }
   }

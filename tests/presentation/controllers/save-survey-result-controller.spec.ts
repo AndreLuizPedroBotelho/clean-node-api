@@ -1,6 +1,5 @@
 import { InvalidParamError } from '@/presentation/errors'
-import { HttpRequest } from '@/presentation/protocols'
-import { LoadSurveyById, SaveSurveyResultParams, SaveSurveyResult } from '@/domain/usecases'
+import { LoadSurveyById, SaveSurveyResult } from '@/domain/usecases'
 import { SaveSurveyResultController } from '@/presentation/controllers'
 import { mockSaveSurveyResult, mockLoadSurveyById } from '@/tests/presentation/mocks'
 import { throwError, mockSurveyResultModel, mockSurveyResultParams } from '@/tests/domain/mocks'
@@ -14,16 +13,9 @@ type SaveSurveyResultControllerTypes = {
   loadSurveyByIdStub: LoadSurveyById
 }
 
-const mockSurveyResultData = (): Omit<SaveSurveyResultParams, 'surveyId' | 'accountId'> => ({
+const mockRequest = (): SaveSurveyResultController.Request => ({
+  surveyId: 'any_survey_id',
   answer: 'any_answer',
-  date: new Date()
-})
-
-const mockRequest = (): HttpRequest => ({
-  params: {
-    surveyId: 'any_survey_id'
-  },
-  body: mockSurveyResultData(),
   accountId: 'any_account_id'
 })
 
@@ -58,7 +50,7 @@ describe('SaveSurveyResult Controller', () => {
     const loadSurveyByIdSpy = jest.spyOn(loadSurveyByIdStub, 'loadById')
     await saveSurveyResultController.handle(mockRequest())
 
-    expect(loadSurveyByIdSpy).toHaveBeenCalledWith('any_survey_id')
+    expect(loadSurveyByIdSpy).toHaveBeenCalledWith(mockRequest().surveyId)
   })
 
   test('Should return 403 if LoadSurveyById returns null', async () => {
@@ -81,14 +73,14 @@ describe('SaveSurveyResult Controller', () => {
       saveSurveyResultController
     } = makeSaveSurveysResultController()
 
-    const httpResponse = await saveSurveyResultController.handle({
-      body: {
-        answer: 'wrong_answer'
-      },
-      params: {
-        surveyId: 'any_survey_id'
-      }
-    })
+    const request: SaveSurveyResultController.Request = {
+      answer: 'wrong_answer',
+      surveyId: 'any_survey_id',
+      accountId: 'any_account_id'
+    }
+
+    delete request.accountId
+    const httpResponse = await saveSurveyResultController.handle(request)
 
     expect(httpResponse).toEqual(forbidden(new InvalidParamError('surveyId')))
   })

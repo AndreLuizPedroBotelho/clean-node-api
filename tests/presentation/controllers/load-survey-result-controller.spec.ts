@@ -1,7 +1,6 @@
 import { LoadSurveyResultController } from '@/presentation/controllers'
 import { InvalidParamError } from '@/presentation/errors'
-import { SaveSurveyResultParams, LoadSurveyById, LoadSurveyResult } from '@/domain/usecases'
-import { HttpRequest } from '@/presentation/protocols'
+import { LoadSurveyById, LoadSurveyResult } from '@/domain/usecases'
 import { throwError, mockSurveyResultModel } from '@/tests/domain/mocks'
 import { forbidden, ok, serverError } from '@/presentation/helpers'
 import { mockLoadSurveyById, mockLoadSurveyResult } from '@/tests/presentation/mocks'
@@ -13,16 +12,8 @@ type LoadSurveyResultControllerTypes = {
   loadSurveyResultStub: LoadSurveyResult
 }
 
-const mockSurveyResultData = (): Omit<SaveSurveyResultParams, 'surveyId' | 'accountId'> => ({
-  answer: 'any_answer',
-  date: new Date()
-})
-
-const mockRequest = (): HttpRequest => ({
-  params: {
-    surveyId: 'any_survey_id'
-  },
-  body: mockSurveyResultData(),
+const mockRequest = (): LoadSurveyResultController.Request => ({
+  surveyId: 'any_survey_id',
   accountId: 'any_account_id'
 })
 
@@ -57,7 +48,7 @@ describe('LoadSurveyResult Controller', () => {
     const loadSurveyByIdSpy = jest.spyOn(loadSurveyByIdStub, 'loadById')
     await loadSurveyResultController.handle(mockRequest())
 
-    expect(loadSurveyByIdSpy).toHaveBeenCalledWith('any_survey_id')
+    expect(loadSurveyByIdSpy).toHaveBeenCalledWith(mockRequest().surveyId)
   })
 
   test('Should return 403 if LoadSurveyById returns null', async () => {
@@ -95,7 +86,7 @@ describe('LoadSurveyResult Controller', () => {
     const loadSurveyByIdSpy = jest.spyOn(loadSurveyResultStub, 'load')
     await loadSurveyResultController.handle(mockRequest())
 
-    expect(loadSurveyByIdSpy).toHaveBeenCalledWith('any_survey_id', 'any_account_id')
+    expect(loadSurveyByIdSpy).toHaveBeenCalledWith(mockRequest().surveyId, mockRequest().accountId)
   })
 
   test('Should return 500 if LoadSurveyResult throws', async () => {

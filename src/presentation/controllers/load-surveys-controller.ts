@@ -1,5 +1,5 @@
 
-import { Controller, HttpResponse, HttpRequest } from '@/presentation/protocols'
+import { Controller, HttpResponse } from '@/presentation/protocols'
 import { noContent, serverError, ok } from '@/presentation/helpers'
 import { LoadSurveys } from '@/domain/usecases'
 
@@ -9,9 +9,9 @@ export class LoadSurveysController implements Controller {
 
   ) { }
 
-  async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
+  async handle(request: LoadSurveysController.Request): Promise<HttpResponse> {
     try {
-      const { accountId } = httpRequest
+      const { accountId } = request
       const surveys = await this.loadSurveys.load(accountId)
 
       if (surveys.length === 0) {
@@ -22,5 +22,11 @@ export class LoadSurveysController implements Controller {
     } catch (error) {
       return serverError(error)
     }
+  }
+}
+
+export namespace LoadSurveysController {
+  export type Request = {
+    accountId: string
   }
 }
