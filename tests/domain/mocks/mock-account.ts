@@ -1,13 +1,13 @@
-import { AuthenticationParams, AddAccountParams } from '@/domain/usecases'
+import { AuthenticationParams, AddAccount } from '@/domain/usecases'
 import { AccountModel } from '@/domain/models'
 
-export const mockAccountParams = (): AddAccountParams => ({
+export const mockAccountParams = (): AddAccount.Params => ({
   name: 'any_name',
   email: 'any_email@mail.com',
   password: 'any_password'
 })
 
-export const mockAccountWithTokenParams = (): AddAccountParams => ({
+export const mockAccountWithTokenParams = (): Omit<AccountModel, 'id'> => ({
   ...mockAccountParams(),
   accessToken: 'any_token'
 })
