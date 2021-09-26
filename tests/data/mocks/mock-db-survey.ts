@@ -4,12 +4,11 @@ import {
   LoadSurveysRepository,
   AddSurveyRepository
 } from '@/data/protocols'
-import { AddSurveyParams } from '@/domain/usecases'
 import { SurveyModel } from '@/domain/models'
 
 export const mockAddSurveyRepository = (): AddSurveyRepository => {
   class AddSurveyRepositoryStub implements AddSurveyRepository {
-    async add(account: AddSurveyParams): Promise<void> {
+    async add(account: AddSurveyRepository.Params): Promise<void> {
       return await Promise.resolve()
     }
   }
