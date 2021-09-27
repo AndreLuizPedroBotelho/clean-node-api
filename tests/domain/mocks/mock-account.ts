@@ -17,6 +17,12 @@ export const mockAccountModel = (): AccountModel => ({
   ...mockAccountParams()
 })
 
+export const mockAccountModelByEmailLoad = (): Omit<AccountModel, 'email' | 'accessToken'> => ({
+  id: 'any_id',
+  name: 'any_name',
+  password: 'any_password'
+})
+
 export const mockAuthentication = (): Authentication.Params => ({
   email: 'any_email@mail.com',
   password: 'any_password'

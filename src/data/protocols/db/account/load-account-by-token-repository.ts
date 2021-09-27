@@ -5,6 +5,5 @@ export interface LoadAccountByTokenRepository {
 }
 
 export namespace LoadAccountByTokenRepository {
-
   export type Result = AccountModel
 }

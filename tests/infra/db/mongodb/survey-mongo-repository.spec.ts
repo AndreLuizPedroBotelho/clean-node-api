@@ -1,7 +1,7 @@
 import { Collection, ObjectId } from 'mongodb'
 import { MongoHelper, SurveyMongoRepository } from '@/infra/db'
 
-import { SurveyModel, AccountModel } from '@/domain/models'
+import { SurveyModel } from '@/domain/models'
 import { mockSurveyParams, mockAccountParams } from '@/tests/domain/mocks'
 
 let surveyCollection: Collection
@@ -12,13 +12,13 @@ const makeSurveyMongoRepository = (): SurveyMongoRepository => {
   return new SurveyMongoRepository()
 }
 
-const mockAccount = async (): Promise<AccountModel> => {
+const mockAccountId = async (): Promise<string> => {
   const res = await accountCollection.insertOne(mockAccountParams())
 
-  return MongoHelper.map(res.ops[0])
+  return MongoHelper.map(res.ops[0]).id
 }
 
-const mockSurvey = async (): Promise<SurveyModel> => {
+const mockSurveyId = async (): Promise<string> => {
   const res = await surveyCollection.insertOne({
     question: 'any_question',
     answers: [{
@@ -31,7 +31,7 @@ const mockSurvey = async (): Promise<SurveyModel> => {
     date: new Date()
   })
 
-  return MongoHelper.map(res.ops[0])
+  return MongoHelper.map(res.ops[0]).id
 }
 
 const mockSurveyMany = async (): Promise<SurveyModel[]> => {
@@ -50,9 +50,9 @@ const mockSurveyMany = async (): Promise<SurveyModel[]> => {
   return res.ops.map(ops => MongoHelper.map(ops))
 }
 
-const mockSurveyResult = async (account: AccountModel, survey: SurveyModel): Promise<void> => {
+const mockSurveyResult = async (accountId: string, survey: SurveyModel): Promise<void> => {
   await surveyResultCollection.insertOne({
-    accountId: new ObjectId(account.id),
+    accountId: new ObjectId(accountId),
     surveyId: new ObjectId(survey.id),
     answer: survey.answers[0].answer,
     date: new Date()
@@ -101,13 +101,13 @@ describe('Survey Mongo Repository', () => {
 
   describe('loadAll()', () => {
     test('Should return an list survey', async () => {
-      const account = await mockAccount()
+      const accountId = await mockAccountId()
 
       const surveyModels = await mockSurveyMany()
 
-      await mockSurveyResult(account, surveyModels[0])
+      await mockSurveyResult(accountId, surveyModels[0])
       const surveyMongoRepository = makeSurveyMongoRepository()
-      const surveys = await surveyMongoRepository.loadAll(account.id)
+      const surveys = await surveyMongoRepository.loadAll(accountId)
 
       expect(surveys.length).toBe(2)
 
@@ -118,10 +118,10 @@ describe('Survey Mongo Repository', () => {
       expect(surveys[1].didAnswer).toBe(false)
     })
     test('Should load empty list', async () => {
-      const account = await mockAccount()
+      const accountId = await mockAccountId()
 
       const surveyMongoRepository = makeSurveyMongoRepository()
-      const surveys = await surveyMongoRepository.loadAll(account.id)
+      const surveys = await surveyMongoRepository.loadAll(accountId)
 
       expect(surveys.length).toBe(0)
     })
@@ -129,10 +129,10 @@ describe('Survey Mongo Repository', () => {
 
   describe('loadById()', () => {
     test('Should load survey by id on success', async () => {
-      const { id } = await mockSurvey()
+      const surveyId = await mockSurveyId()
 
       const surveyMongoRepository = makeSurveyMongoRepository()
-      const survey = await surveyMongoRepository.loadById(id)
+      const survey = await surveyMongoRepository.loadById(surveyId)
 
       expect(survey).toBeTruthy()
       expect(survey.id).toBeTruthy()
