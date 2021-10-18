@@ -66,6 +66,24 @@ describe('Account Mongo Repository', () => {
     })
   })
 
+  describe('CheckByEmail()', () => {
+    test('Should return true if email exist', async () => {
+      const accountMongoRepository = makeAccountMongoRepository()
+
+      await mockAccount()
+      const exists = await accountMongoRepository.checkByEmail('any_email@mail.com')
+
+      expect(exists).toBe(true)
+    })
+    test("Should return false if email doesn't exist", async () => {
+      const accountMongoRepository = makeAccountMongoRepository()
+
+      const account = await accountMongoRepository.checkByEmail('any_email@mail.com')
+
+      expect(account).toBe(false)
+    })
+  })
+
   describe('updateAccessToken', () => {
     test('Should update the account accessToken on updateAccessToken success ', async () => {
       const accountMongoRepository = makeAccountMongoRepository()
