@@ -2,7 +2,8 @@ import { mockSurveyModel, mockSurveyModels } from '@/tests/domain/mocks'
 import {
   LoadSurveyByIdRepository,
   LoadSurveysRepository,
-  AddSurveyRepository
+  AddSurveyRepository,
+  CheckSurveyByIdRepository
 } from '@/data/protocols'
 import { SurveyModel } from '@/domain/models'
 
@@ -18,12 +19,22 @@ export const mockAddSurveyRepository = (): AddSurveyRepository => {
 
 export const mockLoadSurveyByIdRepository = (): LoadSurveyByIdRepository => {
   class LoadSurveyByIdRepositoryStub implements LoadSurveyByIdRepository {
-    async loadById(id: string): Promise<SurveyModel> {
+    async loadById(id: string): Promise<LoadSurveyByIdRepository.Result> {
       return await Promise.resolve(mockSurveyModel())
     }
   }
 
   return new LoadSurveyByIdRepositoryStub()
+}
+
+export const mockCheckSurveyByIdRepository = (): CheckSurveyByIdRepository => {
+  class CheckSurveyByIdRepositoryStub implements CheckSurveyByIdRepository {
+    async checkById(id: string): Promise<CheckSurveyByIdRepository.Result> {
+      return await Promise.resolve(true)
+    }
+  }
+
+  return new CheckSurveyByIdRepositoryStub()
 }
 
 export const mockLoadSurveysRepository = (): LoadSurveysRepository => {

@@ -4,7 +4,7 @@
   "description": "NodeJs Rest Api using TDD,Clean Architecture and Typescript",
   "main": "index.js",
   "author": "André Luiz Pedro Botelho",
-  "license": "GPL-3.0-or-later",
+  "license": "GPL_3.0-or-later",
   "scripts": {
     "start": "node dist/main/server.js",
     "watch": "npx tsc -w",
@@ -24,8 +24,6 @@
     "postinstall": "husky install"
   },
   "keywords": [],
-  "author": "André Luiz Pedro Botelho",
-  "license": "GPL_3.0-or-later",
   "devDependencies": {
     "@shelf/jest-mongodb": "^1.2.3",
     "@types/bcrypt": "^3.0.0",
@@ -38,6 +36,7 @@
     "@types/swagger-ui-express": "^4.1.3",
     "@types/validator": "^13.1.3",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
+    "bson-objectid": "^2.0.1",
     "copyfiles": "^2.4.1",
     "coveralls": "^3.1.0",
     "eslint": "^7.20.0",
