@@ -7,7 +7,6 @@ import {
 } from '@/data/protocols'
 
 import { MongoHelper, QueryBuilder } from '@/infra/db'
-import { SurveyModel } from '@/domain/models'
 import { ObjectId } from 'mongodb'
 
 export class SurveyMongoRepository implements AddSurveyRepository,
@@ -20,7 +19,7 @@ export class SurveyMongoRepository implements AddSurveyRepository,
     await surveyCollection.insertOne(surveyData)
   }
 
-  async loadAll(accountId: string): Promise<SurveyModel[]> {
+  async loadAll(accountId: string): Promise<LoadSurveysRepository.Result> {
     const surveyCollection = await MongoHelper.getCollection('surveys')
 
     const query = new QueryBuilder()
