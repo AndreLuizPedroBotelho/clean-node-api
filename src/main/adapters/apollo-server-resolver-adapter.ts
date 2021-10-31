@@ -6,8 +6,8 @@ import {
   UserInputError
 } from 'apollo-server-express'
 
-export const adapterResolver = async (controller: Controller, args: any): Promise<any> => {
-  const httpResponse = await controller.handle(args)
+export const adapterResolver = async (controller: Controller, args?: any): Promise<any> => {
+  const httpResponse = await controller.handle(args || {})
 
   switch (httpResponse.statusCode) {
     case 200:
