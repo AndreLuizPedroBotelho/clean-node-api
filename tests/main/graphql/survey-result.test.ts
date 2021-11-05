@@ -139,4 +139,77 @@ describe('SurveyResult GraphQL', () => {
       expect(res.errors[0].message).toBe('Access Denied')
     })
   })
+  describe('SurveyResult Mutation', () => {
+    const saveSurveyResultQuery = gql`
+        mutation saveSurveyResult($surveyId:String!,$answer:String!){
+          saveSurveyResult(surveyId:$surveyId,answer:$answer){
+            question
+            answers{
+              answer
+              count
+              percent
+              isCurrentAccountAnswer
+            }
+            date
+          }
+        }
+    `
+
+    test('Should return SurveyResult', async () => {
+      const now = new Date()
+
+      const survey = await mockSurvey(now)
+
+      const accessToken = await mockAccessToken()
+
+      const { mutate } = createTestClient({
+        apolloServer,
+        extendMockRequest: {
+          headers: {
+            'x-access-token': accessToken
+          }
+        }
+      })
+
+      const res: any = await mutate(saveSurveyResultQuery, {
+        variables: {
+          surveyId: survey.id.toString(),
+          answer: 'Answer 1'
+        }
+      })
+
+      expect(res.data.saveSurveyResult.question).toBe('Question')
+      expect(res.data.saveSurveyResult.date).toBe(now.toISOString())
+      expect(res.data.saveSurveyResult.answers).toEqual([{
+        answer: 'Answer 1',
+        count: 1,
+        percent: 100,
+        isCurrentAccountAnswer: true
+      }, {
+        answer: 'Answer 2',
+        count: 0,
+        percent: 0,
+        isCurrentAccountAnswer: false
+      }])
+    })
+    test('Should return AccessDeniedError if no token is provided', async () => {
+      const now = new Date()
+
+      const survey = await mockSurvey(now)
+
+      const { mutate } = createTestClient({
+        apolloServer
+      })
+
+      const res: any = await mutate(saveSurveyResultQuery, {
+        variables: {
+          surveyId: survey.id.toString(),
+          answer: 'Answer 1'
+        }
+      })
+
+      expect(res.data).toBeFalsy()
+      expect(res.errors[0].message).toBe('Access Denied')
+    })
+  })
 })
