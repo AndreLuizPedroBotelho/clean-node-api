@@ -17,7 +17,7 @@ const mockAccountLogin = async (): Promise<string> => {
     password: '123'
   })
 
-  const { id } = MongoHelper.map(res.ops[0])
+  const id = res.insertedId
   const accessToken = sign({ id }, env.jwtSecret)
 
   await accountCollection.updateOne({
@@ -44,9 +44,7 @@ const mockSurvey = async (): Promise<string> => {
     date: new Date()
   })
 
-  const { id } = MongoHelper.map(res.ops[0])
-
-  return id
+  return res.insertedId.toHexString()
 }
 
 describe('Survey Routes', () => {
@@ -59,13 +57,13 @@ describe('Survey Routes', () => {
   })
 
   beforeEach(async () => {
-    accountCollection = await MongoHelper.getCollection('accounts')
+    accountCollection = MongoHelper.getCollection('accounts')
     await accountCollection.deleteMany({})
 
-    surveyCollection = await MongoHelper.getCollection('surveys')
+    surveyCollection = MongoHelper.getCollection('surveys')
     await surveyCollection.deleteMany({})
 
-    surveyResultsCollection = await MongoHelper.getCollection('surveyResults')
+    surveyResultsCollection = MongoHelper.getCollection('surveyResults')
     await surveyResultsCollection.deleteMany({})
   })
 

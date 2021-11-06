@@ -9,7 +9,7 @@ import round from 'mongo-round'
 export class SurveyResultMongoRepository implements SaveSurveyResultRepository, LoadSurveyResultRepository {
   async save(data: SaveSurveyResultRepository.Params): Promise<void> {
     const { surveyId, accountId, answer, date } = data
-    const surveyCollection = await MongoHelper.getCollection('surveyResults')
+    const surveyCollection = MongoHelper.getCollection('surveyResults')
 
     await surveyCollection.findOneAndUpdate({
       surveyId: new ObjectId(surveyId),
@@ -25,7 +25,7 @@ export class SurveyResultMongoRepository implements SaveSurveyResultRepository, 
   }
 
   async loadBySurveyId(surveyId: string, accountId: string): Promise<LoadSurveyResultRepository.Result> {
-    const surveyResultCollection = await MongoHelper.getCollection('surveyResults')
+    const surveyResultCollection = MongoHelper.getCollection('surveyResults')
 
     const query = new QueryBuilder()
       .match({
@@ -194,7 +194,7 @@ export class SurveyResultMongoRepository implements SaveSurveyResultRepository, 
       })
       .build()
 
-    const surveyResult = await surveyResultCollection.aggregate(query).toArray()
+    const surveyResult = await surveyResultCollection.aggregate<LoadSurveyResultRepository.Result>(query).toArray()
 
     return surveyResult.length ? surveyResult[0] : null
   }

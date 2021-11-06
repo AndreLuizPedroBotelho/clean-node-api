@@ -12,7 +12,7 @@ describe('Log Mongo Repository', () => {
   })
 
   beforeEach(async () => {
-    errorCollection = await MongoHelper.getCollection('errors')
+    errorCollection = MongoHelper.getCollection('errors')
 
     await errorCollection.deleteMany({})
   })

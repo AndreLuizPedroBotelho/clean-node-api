@@ -3,7 +3,7 @@ import { MongoHelper } from '@/infra/db'
 
 export class LogMongoRepository implements LogErrorRepository {
   async logError(stack: string): Promise<void> {
-    const accountCollection = await MongoHelper.getCollection('errors')
+    const accountCollection = MongoHelper.getCollection('errors')
 
     await accountCollection.insertOne({
       stack,

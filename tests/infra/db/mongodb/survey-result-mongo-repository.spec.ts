@@ -11,8 +11,9 @@ let surveyResultCollection: Collection
 
 const mockAccount = async (): Promise<AccountModel> => {
   const res = await accountCollection.insertOne(mockAccountParams())
+  const account = await accountCollection.findOne({ _id: res.insertedId })
 
-  return MongoHelper.map(res.ops[0])
+  return MongoHelper.map(account)
 }
 
 const mockSurvey = async (): Promise<SurveyModel> => {
@@ -33,7 +34,9 @@ const mockSurvey = async (): Promise<SurveyModel> => {
     date: new Date()
   })
 
-  return MongoHelper.map(res.ops[0])
+  const survey = await surveyCollection.findOne({ _id: res.insertedId })
+
+  return MongoHelper.map(survey)
 }
 
 const mockSurveyResult = async (account: AccountModel, survey: SurveyModel): Promise<void> => {
@@ -66,7 +69,7 @@ const findOneSurveyResult = async (account: AccountModel, survey: SurveyModel): 
     surveyId: new ObjectId(survey.id)
   })
 
-  return surveyResult
+  return surveyResult as SurveyResultModel
 }
 
 const findSurveyResult = async (account: AccountModel, survey: SurveyModel): Promise<SurveyResultModel[]> => {
@@ -75,7 +78,7 @@ const findSurveyResult = async (account: AccountModel, survey: SurveyModel): Pro
     surveyId: new ObjectId(survey.id)
   }).toArray()
 
-  return surveyResult
+  return surveyResult as SurveyResultModel[]
 }
 
 const makeSurveyResultMongoRepository = (): SurveyResultMongoRepository => {
@@ -91,13 +94,13 @@ describe('Survey Result Mongo Repository', () => {
   })
 
   beforeEach(async () => {
-    surveyResultCollection = await MongoHelper.getCollection('surveyResults')
+    surveyResultCollection = MongoHelper.getCollection('surveyResults')
     await surveyResultCollection.deleteMany({})
 
-    surveyCollection = await MongoHelper.getCollection('surveys')
+    surveyCollection = MongoHelper.getCollection('surveys')
     await surveyCollection.deleteMany({})
 
-    accountCollection = await MongoHelper.getCollection('accounts')
+    accountCollection = MongoHelper.getCollection('accounts')
     await accountCollection.deleteMany({})
   })
 

@@ -12,8 +12,8 @@ const makeAccountMongoRepository = (): AccountMongoRepository => {
 
 const mockAccount = async (): Promise<AccountModel> => {
   const res = await accountCollection.insertOne(mockAccountParams())
-
-  return MongoHelper.map(res.ops[0])
+  const account = await accountCollection.findOne({ _id: res.insertedId })
+  return MongoHelper.map(account)
 }
 
 const loadFakeAccountById = async (id: string): Promise<AccountModel> => {
@@ -30,7 +30,7 @@ describe('Account Mongo Repository', () => {
   })
 
   beforeEach(async () => {
-    accountCollection = await MongoHelper.getCollection('accounts')
+    accountCollection = MongoHelper.getCollection('accounts')
 
     await accountCollection.deleteMany({})
   })

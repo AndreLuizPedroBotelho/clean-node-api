@@ -17,7 +17,7 @@ describe('Login Routes', () => {
   })
 
   beforeEach(async () => {
-    accountCollection = await MongoHelper.getCollection('accounts')
+    accountCollection = MongoHelper.getCollection('accounts')
 
     await accountCollection.deleteMany({})
   })
@@ -31,7 +31,9 @@ describe('Login Routes', () => {
       password
     })
 
-    return MongoHelper.map(res.ops[0])
+    const account = await accountCollection.findOne({ _id: res.insertedId })
+
+    return MongoHelper.map(account)
   }
   describe('POST /signup', () => {
     test('Should return 200 on signup', async () => {

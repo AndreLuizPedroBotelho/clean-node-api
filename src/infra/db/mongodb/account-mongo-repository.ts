@@ -15,14 +15,14 @@ export class AccountMongoRepository implements
   LoadAccountByTokenRepository,
   CheckAccountByEmailRepository {
   async add(accountData: AddAccountRepository.Params): Promise<AddAccountRepository.Result> {
-    const accountCollection = await MongoHelper.getCollection('accounts')
+    const accountCollection = MongoHelper.getCollection('accounts')
     const result = await accountCollection.insertOne(accountData)
 
-    return !!result.ops[0]
+    return !!result.insertedId
   }
 
   async loadByEmail(email: string): Promise<LoadAccountByEmailRepository.Result> {
-    const accountCollection = await MongoHelper.getCollection('accounts')
+    const accountCollection = MongoHelper.getCollection('accounts')
     const account = await accountCollection.findOne({ email }, {
       projection: {
         _id: 1,
@@ -35,7 +35,7 @@ export class AccountMongoRepository implements
   }
 
   async checkByEmail(email: string): Promise<CheckAccountByEmailRepository.Result> {
-    const accountCollection = await MongoHelper.getCollection('accounts')
+    const accountCollection = MongoHelper.getCollection('accounts')
     const account = await accountCollection.findOne({ email }, {
       projection: {
         _id: 1
@@ -46,7 +46,7 @@ export class AccountMongoRepository implements
   }
 
   async updateAccessToken(id: string, token: string): Promise<void> {
-    const accountCollection = await MongoHelper.getCollection('accounts')
+    const accountCollection = MongoHelper.getCollection('accounts')
     await accountCollection.updateOne({ _id: id }, {
       $set: {
         accessToken: token
@@ -55,7 +55,7 @@ export class AccountMongoRepository implements
   }
 
   async loadByToken(token: string, role?: string): Promise<LoadAccountByTokenRepository.Result> {
-    const accountCollection = await MongoHelper.getCollection('accounts')
+    const accountCollection = MongoHelper.getCollection('accounts')
     const account = await accountCollection.findOne({
       accessToken: token,
       $or: [
