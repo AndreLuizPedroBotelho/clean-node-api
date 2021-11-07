@@ -1,15 +1,16 @@
-import { SurveyModel } from './../../../src/domain/models/survey'
-import { ApolloServer, gql } from 'apollo-server-express'
-import { makeApolloServer } from './helpers'
+import { SurveyModel } from '@/domain/models'
+import { changeParams } from './helpers'
 import { Collection } from 'mongodb'
 import { MongoHelper } from '@/infra/db'
-import { createTestClient } from 'apollo-server-integration-testing'
 import env from '@/main/config/env'
 import { sign } from 'jsonwebtoken'
+import request from 'supertest'
+import { setupApp } from '@/main/config/app'
+import { Express } from 'express'
 
 let surveyCollection: Collection
 let accountCollection: Collection
-let apolloServer: ApolloServer
+let app: Express
 
 const mockAccessToken = async (): Promise<string> => {
   const res = await accountCollection.insertOne({
@@ -53,7 +54,8 @@ const mockSurvey = async (now): Promise<SurveyModel> => {
 
 describe('SurveyResult GraphQL', () => {
   beforeAll(async () => {
-    apolloServer = makeApolloServer()
+    app = await setupApp()
+
     await MongoHelper.connect(process.env.MONGO_URL)
   })
 
@@ -70,9 +72,9 @@ describe('SurveyResult GraphQL', () => {
   })
 
   describe('SurveyResult Query', () => {
-    const surveyResultQuery = gql`
-        query surveyResult($surveyId:String!){
-          surveyResult(surveyId:$surveyId){
+    const query = `
+        query {
+          surveyResult(surveyId: "$surveyId"){
             question
             answers{
               answer
@@ -92,24 +94,19 @@ describe('SurveyResult GraphQL', () => {
 
       const accessToken = await mockAccessToken()
 
-      const { query } = createTestClient({
-        apolloServer,
-        extendMockRequest: {
-          headers: {
-            'x-access-token': accessToken
-          }
-        }
-      })
+      const res = await request(app)
+        .post('/graphql')
+        .set('x-access-token', accessToken)
+        .send({
+          query: changeParams(query, {
+            surveyId: survey.id.toString()
+          })
+        })
 
-      const res: any = await query(surveyResultQuery, {
-        variables: {
-          surveyId: survey.id.toString()
-        }
-      })
-
-      expect(res.data.surveyResult.question).toBe('Question')
-      expect(res.data.surveyResult.date).toBe(now.toISOString())
-      expect(res.data.surveyResult.answers).toEqual([{
+      expect(res.status).toBe(200)
+      expect(res.body.data.surveyResult.question).toBe('Question')
+      expect(res.body.data.surveyResult.date).toBe(now.toISOString())
+      expect(res.body.data.surveyResult.answers).toEqual([{
         answer: 'Answer 1',
         count: 0,
         percent: 0,
@@ -126,24 +123,23 @@ describe('SurveyResult GraphQL', () => {
 
       const survey = await mockSurvey(now)
 
-      const { query } = createTestClient({
-        apolloServer
-      })
+      const res = await request(app)
+        .post('/graphql')
+        .send({
+          query: changeParams(query, {
+            surveyId: survey.id.toString()
+          })
+        })
 
-      const res: any = await query(surveyResultQuery, {
-        variables: {
-          surveyId: survey.id.toString()
-        }
-      })
-
-      expect(res.data).toBeFalsy()
-      expect(res.errors[0].message).toBe('Access Denied')
+      expect(res.status).toBe(403)
+      expect(res.body.data).toBeFalsy()
+      expect(res.body.errors[0].message).toBe('Access Denied')
     })
   })
   describe('SurveyResult Mutation', () => {
-    const saveSurveyResultQuery = gql`
-        mutation saveSurveyResult($surveyId:String!,$answer:String!){
-          saveSurveyResult(surveyId:$surveyId,answer:$answer){
+    const query = `
+        mutation{
+          saveSurveyResult(surveyId:"$surveyId",answer:"$answer"){
             question
             answers{
               answer
@@ -163,25 +159,19 @@ describe('SurveyResult GraphQL', () => {
 
       const accessToken = await mockAccessToken()
 
-      const { mutate } = createTestClient({
-        apolloServer,
-        extendMockRequest: {
-          headers: {
-            'x-access-token': accessToken
-          }
-        }
-      })
+      const res = await request(app)
+        .post('/graphql')
+        .set('x-access-token', accessToken)
+        .send({
+          query: changeParams(query, {
+            surveyId: survey.id.toString(),
+            answer: 'Answer 1'
+          })
+        })
 
-      const res: any = await mutate(saveSurveyResultQuery, {
-        variables: {
-          surveyId: survey.id.toString(),
-          answer: 'Answer 1'
-        }
-      })
-
-      expect(res.data.saveSurveyResult.question).toBe('Question')
-      expect(res.data.saveSurveyResult.date).toBe(now.toISOString())
-      expect(res.data.saveSurveyResult.answers).toEqual([{
+      expect(res.body.data.saveSurveyResult.question).toBe('Question')
+      expect(res.body.data.saveSurveyResult.date).toBe(now.toISOString())
+      expect(res.body.data.saveSurveyResult.answers).toEqual([{
         answer: 'Answer 1',
         count: 1,
         percent: 100,
@@ -193,24 +183,24 @@ describe('SurveyResult GraphQL', () => {
         isCurrentAccountAnswer: false
       }])
     })
+
     test('Should return AccessDeniedError if no token is provided', async () => {
       const now = new Date()
 
       const survey = await mockSurvey(now)
 
-      const { mutate } = createTestClient({
-        apolloServer
-      })
+      const res = await request(app)
+        .post('/graphql')
+        .send({
+          query: changeParams(query, {
+            surveyId: survey.id.toString(),
+            answer: 'Answer 1'
+          })
+        })
 
-      const res: any = await mutate(saveSurveyResultQuery, {
-        variables: {
-          surveyId: survey.id.toString(),
-          answer: 'Answer 1'
-        }
-      })
-
-      expect(res.data).toBeFalsy()
-      expect(res.errors[0].message).toBe('Access Denied')
+      expect(res.status).toBe(403)
+      expect(res.body.data).toBeFalsy()
+      expect(res.body.errors[0].message).toBe('Access Denied')
     })
   })
 })

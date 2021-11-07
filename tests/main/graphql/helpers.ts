@@ -1,12 +1,7 @@
-import schemaDirectives from '@/main/graphql/directives'
-import typeDefs from '@/main/graphql/type-defs'
-import resolvers from '@/main/graphql/resolvers'
-import { ApolloServer } from 'apollo-server-express'
+export const changeParams = (gql: string, params: Object): String => {
+  Object.entries(params).forEach(([key, value], index) => {
+    gql = gql.replace(`$${key}`, value?.toString())
+  })
 
-export const makeApolloServer = (): ApolloServer => new ApolloServer({
-  resolvers,
-  typeDefs,
-  schemaDirectives,
-  context: ({ req }) => ({ req })
-
-})
+  return gql
+}
